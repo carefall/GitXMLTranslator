@@ -9,12 +9,14 @@ namespace GitXMLTranslator.Internals
     {
 
         public string gamedataPath = "";
+        public string name = "";
         JsonSerializerOptions options = new()
         {
             WriteIndented = true
         };
 
-        public Settings() {
+        public Settings()
+        {
             try
             {
                 string folderPath = AppDomain.CurrentDomain.BaseDirectory + "/Assets";
@@ -25,16 +27,15 @@ namespace GitXMLTranslator.Internals
                     //File.Create(settingsPath).Close();
                     var config = new Dictionary<string, string>
                     {
-                        ["gamedata-path"] = ""
+                        ["gamedata-path"] = "",
+                        ["name"] = ""
                     };
                     string data = JsonSerializer.Serialize(config, options);
                     File.WriteAllText(settingsPath, data);
                 }
                 string json = File.ReadAllText(settingsPath);
                 using JsonDocument doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                var property = root.GetProperty("gamedata-path");
-                string? value = property.GetString();
+                string? value = doc.RootElement.GetProperty("gamedata-path").GetString();
                 if (value == null || value.Trim().Length == 0)
                 {
                     var dialog = new OpenFolderDialog
@@ -51,19 +52,44 @@ namespace GitXMLTranslator.Internals
                     gamedataPath = path;
                     var config = new Dictionary<string, string>
                     {
-                        ["gamedata-path"] = path
+                        ["gamedata-path"] = path,
+                        ["name"] = ""
                     };
                     string data = JsonSerializer.Serialize(config, options);
                     File.WriteAllText(settingsPath, data);
                     return;
                 }
                 gamedataPath = value;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
                 Application.Current.Shutdown();
             }
         }
 
+        public void UpdateName(string name)
+        {
+            this.name = name;
+            try
+            {
+                string settingsPath = AppDomain.CurrentDomain.BaseDirectory + "/Assets/settings.json";
+                string json = File.ReadAllText(settingsPath);
+                using JsonDocument doc = JsonDocument.Parse(json);
+                var config = new Dictionary<string, string>
+                {
+                    ["gamedata-path"] = doc.RootElement.GetProperty("gamedata-path").GetString() ?? "",
+                    ["name"] = name
+                };
+                string data = JsonSerializer.Serialize(config, options);
+                File.WriteAllText(settingsPath, data);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                Application.Current.Shutdown();
+            }
+
+        }
     }
 }

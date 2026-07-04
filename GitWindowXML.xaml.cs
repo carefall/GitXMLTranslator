@@ -1,7 +1,4 @@
 ﻿using GitXMLTranslator.Internals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,18 +10,33 @@ namespace GitXMLTranslator
     {
 
         private static readonly Regex _regex = new(@"^[\p{L}\p{Nd}\s.,-]*$", RegexOptions.Compiled);
+        private Settings settings;
 
         public GitWindowXML()
         {
             InitializeComponent();
+            Logger.Setup();
+            settings = new();
+            if (settings.name != "")
+            {
+                StartUpdate();
+            }
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            settings.UpdateName(Name.Text);
+            StartUpdate();
+        }
+
+        private async void StartUpdate()
         {
             ContinueButton.IsEnabled = false;
-            Settings s = new();
-            int result = await GitHubClient.Check(s.gamedataPath);
-            //
+            int result = await GitHubClient.Check(settings.gamedataPath);
+            if (result == -1)
+            {
+                Application.Current.Shutdown();
+            }
         }
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
