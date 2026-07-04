@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Shapes;
 
 namespace GitXMLTranslator.Internals
 {
@@ -36,6 +37,7 @@ namespace GitXMLTranslator.Internals
                 string json = File.ReadAllText(settingsPath);
                 using JsonDocument doc = JsonDocument.Parse(json);
                 string? value = doc.RootElement.GetProperty("gamedata-path").GetString();
+                name = doc.RootElement.GetProperty("name").GetString() ?? "";
                 if (value == null || value.Trim().Length == 0)
                 {
                     var dialog = new OpenFolderDialog
@@ -57,6 +59,7 @@ namespace GitXMLTranslator.Internals
                     };
                     string data = JsonSerializer.Serialize(config, options);
                     File.WriteAllText(settingsPath, data);
+                    Directory.CreateDirectory(path + "/gamedata/configs");
                     return;
                 }
                 gamedataPath = value;

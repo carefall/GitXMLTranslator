@@ -27,7 +27,7 @@ namespace GitXMLTranslator.Internals
             Dictionary<string, string> filesToUpdate = new();
             foreach (string localFile in localJsons)
             {
-                string path = "gamedata/configs/" + localFile;
+                string path = localFile;
                 if (!hashesDict.ContainsKey(localFile))
                 {
                     filesToDelete.Add(path);
@@ -51,7 +51,7 @@ namespace GitXMLTranslator.Internals
                 for (int i = 0; i < len; i++)
                 {
                     var key = keys[i];
-                    await DownloadFile(key, filesToUpdate[key].Replace("Assets", "Downloads"), "carefall", "GitXMLTranslator");
+                    await DownloadFile(key, "carefall", "GitXMLTranslator");
                 }
                 foreach (var path in filesToDelete)
                 {
@@ -91,7 +91,10 @@ namespace GitXMLTranslator.Internals
         {
             try
             {
-                return [.. Directory.GetFiles(folderPath, "*", SearchOption.TopDirectoryOnly).Select(f => f.Replace("\\", "/"))];
+                return [.. Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Select(f => {
+                    var relative = Path.GetRelativePath(folderPath, f);
+                    return relative.Replace("\\", "/");
+                })];
             }
             catch (Exception ex)
             {
@@ -108,7 +111,7 @@ namespace GitXMLTranslator.Internals
             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }
 
-        public static async Task DownloadFile(string file, string destinationPath, string owner, string repo)
+        public static async Task DownloadFile(string file, string owner, string repo)
         {
             try
             {
@@ -116,9 +119,16 @@ namespace GitXMLTranslator.Internals
                 {
                     Timeout = TimeSpan.FromSeconds(10)
                 };
+                MessageBox.Show($"https://raw.githubusercontent.com/{owner}/{repo}/main/gamedata/configs/{file}");
                 var data = await client.GetByteArrayAsync($"https://raw.githubusercontent.com/{owner}/{repo}/main/Assets/{file}");
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-                await File.WriteAllBytesAsync(destinationPath, data);
+                var fileFolders = file.Split('/');
+                var fileFolderWithoutFile = fileFolders[0];
+                for (int i = 1; i < fileFolders.Length - 1; i++)
+                {
+                    fileFolderWithoutFile += "/" + fileFolders[i];
+                }
+                Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "/Downloads/" + fileFolderWithoutFile);
+                await File.WriteAllBytesAsync(AppDomain.CurrentDomain.BaseDirectory + "/Downloads/" + file, data);
             }
             catch (Exception ex)
             {
