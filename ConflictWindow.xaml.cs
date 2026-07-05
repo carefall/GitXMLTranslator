@@ -270,7 +270,7 @@ namespace GitXMLTranslator
                 string newRu = ru;
                 string en = DecodeMultiline(element.Element("eng")?.Value ?? "");
                 string newEn = en;
-                string comment = element.Attribute("comment")?.Value ?? "";
+                string comment = DecodeMultiline(element.Attribute("comment")?.Value ?? "");
                 dict[id] = new StringEntry(id, ru, newRu, en, newEn, comment);
             }
             return dict;
@@ -328,33 +328,43 @@ namespace GitXMLTranslator
 
         private void Finish_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var file in Files)
+            try
             {
-                foreach (var conflict in file.conflicts)
+                foreach (var file in Files)
                 {
-                    string result = conflict.Result ? conflict.Local : conflict.Server;
-                    var t = file.targetEntries[conflict.Id];
-                    var s = file.selfEntries[conflict.Id];
-                    if (conflict.type == ConflictType.RU)
+                    foreach (var conflict in file.conflicts)
                     {
-                        t.newRu = result;
-                        s.newRu = result;
-                        s.oldRu = result;
-                        t.oldRu = result;
-                    } else
-                    {
-                        t.newEn = result;
-                        s.newEn = result;
-                        s.oldEn = result;
-                        t.oldEn = result;
+                        string result = conflict.Result ? conflict.Local : conflict.Server;
+                        var t = file.targetEntries[conflict.Id];
+                        var s = file.selfEntries[conflict.Id];
+                        if (conflict.type == ConflictType.RU)
+                        {
+                            t.newRu = EncodeMultiline(result);
+                            s.newRu = EncodeMultiline(result);
+                            s.oldRu = EncodeMultiline(result);
+                            t.oldRu = EncodeMultiline(result);
+                        }
+                        else
+                        {
+                            t.newEn = EncodeMultiline(result);
+                            s.newEn = EncodeMultiline(result);
+                            s.oldEn = EncodeMultiline(result);
+                            t.oldEn = EncodeMultiline(result);
+                        }
                     }
                 }
+                SaveLocalFiles();
+                string dir = AppDomain.CurrentDomain.BaseDirectory + "Downloads";
+                Directory.Delete(dir, recursive: true);
+                Directory.CreateDirectory(dir);
+                new MainWindow(name).Show();
+                Close();
+                return;
             }
-            SaveLocalFiles();
-            Directory.Delete(AppDomain.CurrentDomain.BaseDirectory + "Downloads");
-            new MainWindow(name).Show();
-            Close();
-            return;
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
     }
 }

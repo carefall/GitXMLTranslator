@@ -13,7 +13,7 @@ namespace GitXMLTranslator.Internals
         {
             try
             {
-                var hashesDict = await GetGitHubHashes("carefall", "GitXMLTranslator", "Assets/hashes.json");
+                var hashesDict = await GetGitHubHashes("carefall", "GitXMLTranslator", "hashes.json");
                 if (hashesDict == null)
                 {
                     MessageBox.Show("Соединение с сервером не установлено.", "Синхронизация", MessageBoxButton.OK);
