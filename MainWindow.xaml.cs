@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace GitXMLTranslator
+namespace RestXMLTranslator
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

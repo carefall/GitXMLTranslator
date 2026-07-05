@@ -3,14 +3,15 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 
-namespace GitXMLTranslator.Internals
+namespace RestXMLTranslator.Internals
 {
     internal class Settings
     {
 
         public string gamedataPath = "";
         public string name = "";
-        JsonSerializerOptions options = new()
+        public int version = 0;
+        private readonly JsonSerializerOptions options = new()
         {
             WriteIndented = true
         };
@@ -19,26 +20,30 @@ namespace GitXMLTranslator.Internals
         {
             try
             {
-                string folderPath = AppDomain.CurrentDomain.BaseDirectory + "/Assets";
-                string settingsPath = AppDomain.CurrentDomain.BaseDirectory + "/Assets/settings.json";
+                Logger.Log("Settings", "Initializing settings...");
+                string folderPath = AppDomain.CurrentDomain.BaseDirectory;
+                string settingsPath = AppDomain.CurrentDomain.BaseDirectory + "settings.json";
                 if (!File.Exists(settingsPath))
                 {
-                    Directory.CreateDirectory(folderPath);
-                    //File.Create(settingsPath).Close();
+                    Logger.Log("Settings", "Creating settings file...");
                     var config = new Dictionary<string, string>
                     {
                         ["gamedata-path"] = "",
-                        ["name"] = ""
+                        ["name"] = "",
+                        ["version"] = "0"
                     };
                     string data = JsonSerializer.Serialize(config, options);
                     File.WriteAllText(settingsPath, data);
+                    Logger.Log("Settings", "Settings file created...");
                 }
                 string json = File.ReadAllText(settingsPath);
                 using JsonDocument doc = JsonDocument.Parse(json);
                 string? value = doc.RootElement.GetProperty("gamedata-path").GetString();
                 name = doc.RootElement.GetProperty("name").GetString() ?? "";
+                version = doc.RootElement.GetProperty("version").GetInt32();
                 if (value == null || value.Trim().Length == 0)
                 {
+                    Logger.Log("Settings", "GameData path not found...");
                     var dialog = new OpenFolderDialog
                     {
                         Title = "Выберите папку с gamedata",
@@ -50,45 +55,53 @@ namespace GitXMLTranslator.Internals
                         if (result == MessageBoxResult.No) Application.Current.Shutdown();
                     }
                     string path = dialog.FolderName;
-                    gamedataPath = path;
+                    Logger.Log("Settings", $"GameData path selected: {path}");
+                    gamedataPath = path.Replace("\\", "/");
                     var config = new Dictionary<string, string>
                     {
                         ["gamedata-path"] = path,
-                        ["name"] = ""
+                        ["name"] = "",
+                        ["version"] = version.ToString(),
                     };
                     string data = JsonSerializer.Serialize(config, options);
                     File.WriteAllText(settingsPath, data);
+                    Logger.Log("Settings", $"Saved gamedata path. Created /gamedata/configs folder.");
                     Directory.CreateDirectory(path + "/gamedata/configs");
                     return;
                 }
-                gamedataPath = value;
+                gamedataPath = value.Replace("\\", "/");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                Logger.Log("Settings", $"Unhandled exception: {ex}");
+                MessageBox.Show("Произошла неизвестная ошибка при обработке папки gamedata. Обратитесь к разработчику. К обращению приложите файл log.txt", "Настройки");
                 Application.Current.Shutdown();
             }
         }
 
         public void UpdateName(string name)
         {
-            this.name = name;
             try
             {
-                string settingsPath = AppDomain.CurrentDomain.BaseDirectory + "/Assets/settings.json";
+                this.name = name;
+                Logger.Log("Settings", $"User selected name: {name}.");
+                string settingsPath = AppDomain.CurrentDomain.BaseDirectory + "/settings.json";
                 string json = File.ReadAllText(settingsPath);
                 using JsonDocument doc = JsonDocument.Parse(json);
                 var config = new Dictionary<string, string>
                 {
                     ["gamedata-path"] = doc.RootElement.GetProperty("gamedata-path").GetString() ?? "",
-                    ["name"] = name
+                    ["name"] = name,
+                    ["version"] = doc.RootElement.GetProperty("version").GetString() ?? "0",
                 };
                 string data = JsonSerializer.Serialize(config, options);
                 File.WriteAllText(settingsPath, data);
+                Logger.Log("Settings", "Name saved to settings file.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                Logger.Log("Settings", $"Unhandled exception: {ex}");
+                MessageBox.Show("Произошла неизвестная ошибка при обработке имени. Обратитесь к разработчику. К обращению приложите файл log.txt", "Настройки");
                 Application.Current.Shutdown();
             }
 

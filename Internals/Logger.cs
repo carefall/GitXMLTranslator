@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Windows;
 
-namespace GitXMLTranslator.Internals
+namespace RestXMLTranslator.Internals
 {
     internal class Logger
     {
@@ -25,6 +25,7 @@ namespace GitXMLTranslator.Internals
             try
             {
                 File.Create("log.txt").Close();
+                Log("Logger", "Logging initialized");
             } catch (Exception)
             {
                 MessageBox.Show("Не удалось создать файл лога. Это очень плохо ;(", "Запуск", MessageBoxButton.OK);

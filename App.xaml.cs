@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Windows;
 
-namespace GitXMLTranslator
+namespace RestXMLTranslator
 {
     /// <summary>
     /// Interaction logic for App.xaml
