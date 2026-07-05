@@ -9,8 +9,8 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize">
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <TextBlock TextAlignment="Center" Text="Для использования введите никнейм." Margin="10, 10, 10, 0" FontFamily="Segoe UI" FontSize="24" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <TextBox x:Name="Name" Margin="40, 10, 40, 70" VerticalAlignment="Bottom" Height="30" VerticalContentAlignment="Center" TextChanged="TextBox_TextChanged"/>
+        <TextBlock x:Name="Text" TextAlignment="Center" Text="Для использования введите никнейм." Margin="10, 10, 10, 0" FontFamily="Segoe UI" FontSize="24" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBox x:Name="NameBox" Margin="40, 10, 40, 70" VerticalAlignment="Bottom" Height="30" VerticalContentAlignment="Center" TextChanged="NameBox_TextChanged"/>
         <Button x:Name="ContinueButton" Content="Продолжить" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 0, 0, 10" Height="40" Width="100" Click="Button_Click" IsEnabled="False"/>
     </Grid>
 </Window>

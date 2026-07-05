@@ -1,4 +1,5 @@
 ﻿using GitXMLTranslator.Internals;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,27 +20,47 @@ namespace GitXMLTranslator
             settings = new();
             if (settings.name != "")
             {
+                ContinueButton.Visibility = Visibility.Hidden;
+                NameBox.Visibility = Visibility.Hidden;
+                Text.Text = $"Добро пожаловать, {settings.name}. Идёт синхронизация.";
                 StartUpdate();
             }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            settings.UpdateName(Name.Text);
+            settings.UpdateName(NameBox.Text);
             StartUpdate();
         }
 
         private async void StartUpdate()
         {
+            var dir = AppDomain.CurrentDomain.BaseDirectory + "/Downloads";
+            if (Directory.Exists(dir))
+            {
+                Directory.Delete(dir, recursive: true);
+                Directory.CreateDirectory(dir);
+            }
             ContinueButton.IsEnabled = false;
             int result = await GitHubClient.Check(settings.gamedataPath);
             if (result == -1)
             {
                 Application.Current.Shutdown();
+                return;
             }
+            if (result == 0)
+            {
+                new MainWindow(settings.name).Show();
+                Close();
+                return;
+            }
+            var window = new ConflictWindow(settings.name, settings.gamedataPath);
+            window.Show();
+            window.RebuildLocalFiles();
+            Close();
         }
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void NameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (sender is not TextBox textBox)
                 return;
@@ -53,9 +74,9 @@ namespace GitXMLTranslator
                 }
             }
             ContinueButton.IsEnabled = textBox.Text.Length > 2;
-            
 
-            
+
+
         }
     }
 }
