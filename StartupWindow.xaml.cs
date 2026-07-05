@@ -29,6 +29,7 @@ namespace RestXMLTranslator
         {
             settings.UpdateName(NameBox.Text);
             StartUpdate();
+
         }
 
         private async void StartUpdate()
@@ -41,6 +42,7 @@ namespace RestXMLTranslator
                 Application.Current.Shutdown();
                 return;
             }
+            Logger.Log("Startup", "Successful update check. Moving to MainWindow");
             new MainWindow(settings.name).Show();
             Close();
             return;

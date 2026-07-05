@@ -1,13 +1,25 @@
 ﻿using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace RestXMLTranslator.Internals
 {
     internal class RestClient
     {
+        private static XmlWriterSettings settings = new()
+        {
+            Encoding = Encoding.GetEncoding(1251),
+            Indent = true
+        };
+
+        private static JsonSerializerOptions options = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         public class StringEntry
         {
@@ -36,10 +48,11 @@ namespace RestXMLTranslator.Internals
                 DeleteRedundantFiles(files, gameDataPath);
                 UpdateLocalFiles(files, gameDataPath, version);
                 return 0;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Logger.Log("RestClient-Sync", $"Unhandled exception: {ex}");
-                MessageBox.Show("Синхронизации", "Произошла неизвестная ошибка при синхронизации. Обратитесь к разработчику. К обращению приложите файл log.txt");
+                MessageBox.Show("Произошла неизвестная ошибка при синхронизации. Обратитесь к разработчику. К обращению приложите файл log.txt", "Синхронизации");
                 return -1;
             }
         }
@@ -51,7 +64,7 @@ namespace RestXMLTranslator.Internals
             {
                 if (file.Value < version) continue;
                 string update = await GetDataAsync($"https://nukerfall.pythonanywhere.com/translator/download?version={version}&filepath={file.Key}");
-                List<StringEntry>? entries = JsonSerializer.Deserialize<List<StringEntry>>(update);
+                List<StringEntry>? entries = JsonSerializer.Deserialize<List<StringEntry>>(update, options);
                 if (entries == null) continue;
                 string path = gameDataPath + "/gamedata/configs/" + file.Key;
                 string? dir = Path.GetDirectoryName(path);
@@ -68,7 +81,7 @@ namespace RestXMLTranslator.Internals
                 var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
                 foreach (var entry in entries)
                 {
-                    if (!index.TryGetValue(entry.Id!, out var stringElement))
+                    if (!index.TryGetValue(entry.Id, out var stringElement))
                     {
                         stringElement = new XElement("string", new XAttribute("id", entry.Id!));
                         doc.Root.Add(stringElement);
@@ -83,7 +96,8 @@ namespace RestXMLTranslator.Internals
                     }
                     langElement.Value = entry.Text!;
                 }
-                doc.Save(path);
+                using var writer = XmlWriter.Create(path, settings);
+                doc.Save(writer);
             }
         }
 

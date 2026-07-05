@@ -1,10 +1,8 @@
-﻿using System.Windows;
+﻿using RestXMLTranslator.Internals;
+using System.Windows;
 
 namespace RestXMLTranslator
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
 

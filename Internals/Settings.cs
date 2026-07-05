@@ -26,11 +26,11 @@ namespace RestXMLTranslator.Internals
                 if (!File.Exists(settingsPath))
                 {
                     Logger.Log("Settings", "Creating settings file...");
-                    var config = new Dictionary<string, string>
+                    var config = new Dictionary<string, object>
                     {
                         ["gamedata-path"] = "",
                         ["name"] = "",
-                        ["version"] = "0"
+                        ["version"] = 0
                     };
                     string data = JsonSerializer.Serialize(config, options);
                     File.WriteAllText(settingsPath, data);
@@ -57,11 +57,11 @@ namespace RestXMLTranslator.Internals
                     string path = dialog.FolderName;
                     Logger.Log("Settings", $"GameData path selected: {path}");
                     gamedataPath = path.Replace("\\", "/");
-                    var config = new Dictionary<string, string>
+                    var config = new Dictionary<string, object>
                     {
                         ["gamedata-path"] = path,
                         ["name"] = "",
-                        ["version"] = version.ToString(),
+                        ["version"] = version,
                     };
                     string data = JsonSerializer.Serialize(config, options);
                     File.WriteAllText(settingsPath, data);
@@ -88,11 +88,11 @@ namespace RestXMLTranslator.Internals
                 string settingsPath = AppDomain.CurrentDomain.BaseDirectory + "/settings.json";
                 string json = File.ReadAllText(settingsPath);
                 using JsonDocument doc = JsonDocument.Parse(json);
-                var config = new Dictionary<string, string>
+                var config = new Dictionary<string, object>
                 {
                     ["gamedata-path"] = doc.RootElement.GetProperty("gamedata-path").GetString() ?? "",
                     ["name"] = name,
-                    ["version"] = doc.RootElement.GetProperty("version").GetString() ?? "0",
+                    ["version"] = doc.RootElement.GetProperty("version").GetInt32(),
                 };
                 string data = JsonSerializer.Serialize(config, options);
                 File.WriteAllText(settingsPath, data);
