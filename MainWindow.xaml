@@ -5,10 +5,216 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RestXMLTranslator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="RestXMLTranslator - Перевод" Height="450" Width="800" FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman">
     <Grid>
-        <TextBox Width="100" Height="30" Background="Black">
-            
-        </TextBox>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- Grid панели управления файлами -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="30"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0"
+                    Content="◀"
+                    Click="TabsLeft_Click"/>
+            <Button Grid.Column="2"
+                    Content="▶"
+                    Click="TabsRight_Click"/>
+            <!-- ScrollViewer списка файлов -->
+            <ScrollViewer x:Name="TabsScroll"
+                          Grid.Column="1"
+                          HorizontalScrollBarVisibility="Hidden"
+                          VerticalScrollBarVisibility="Disabled"
+                          PreviewMouseWheel="TabsScroll_PreviewMouseWheel">
+                <ListBox x:Name="FilesList"
+                         SelectionChanged="FilesList_SelectionChanged">
+
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="6,1"/>
+                            <Setter Property="Margin" Value="1,1,1,1"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="BorderBrush" Value="Gray"/>
+                            <Setter Property="Background" Value="LightGray"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="White"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </Trigger>
+
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#FFE8E8E8"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <TextBlock Text="{Binding Name}"
+                                           VerticalAlignment="Center"
+                                           Margin="6,0"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
+        </Grid>
+        <!-- StackPanel панели управления переводами -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button x:Name="Save" Content="Отправить на сервер"
+                    Width="180"
+                    Height="30"
+                    Margin="5"
+                    Click="Save_Click"
+                    FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"/>
+            <Button x:Name="LoadTranslation"
+                    Content="Загрузить перевод из файла"
+                    Width="180"
+                    Height="30"
+                    Margin="5"
+                    Click="LoadTranslation_Click"
+                    FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"/>
+            <Button x:Name="LoadBufferTranslation"
+                    Content="Загрузить перевод из буфера"
+                    Width="180"
+                    Height="30"
+                    Margin="5"
+                    Click="LoadBufferTranslation_Click"
+                    FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"/>
+            <CheckBox Content="Скрыть утверждённые"
+                      Margin="5,0"
+                      Checked="FilterChanged"
+                      Unchecked="FilterChanged" VerticalAlignment="Center"/>
+            <CheckBox Content="Скрыть неизменённые"
+                      Margin="5,0"
+                      Checked="FilterChanged"
+                      Unchecked="FilterChanged" VerticalAlignment="Center"/>
+            <CheckBox Content="Скрыть изменённые"
+                      Margin="5,0"
+                      Checked="FilterChanged"
+                      Unchecked="FilterChanged" VerticalAlignment="Center"/>
+            <TextBox x:Name="SearchBox"
+                     Height="30"
+                     Width="200"
+                     TextChanged="SearchBox_TextChanged"
+                     VerticalContentAlignment="Center"/>
+        </StackPanel>
+        <DataGrid x:Name="Grid" Grid.Row="2"
+                  ItemsSource="{Binding }"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  SelectionMode="Extended"
+                  SelectionUnit="FullRow"
+                  CanUserSortColumns="True">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightBlue"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="Black"/>
+            </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="White"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasChanges}" Value="True">
+                            <Setter Property="Background" Value="Yellow"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsApproved}" Value="True">
+                            <Setter Property="Background" Value="LightGreen"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID"
+                                    Binding="{Binding Id}"
+                                    IsReadOnly="True"
+                                    Width="220"/>
+                <DataGridTemplateColumn Header="Русский" Width="2*" SortMemberPath="RuText">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding RuText}"
+                                     IsReadOnly="True"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     TextWrapping="Wrap"
+                                     Cursor="IBeam"
+                                     FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="English" Width="2*" SortMemberPath="EngText">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding EngText}"
+                                     IsReadOnly="True"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     TextWrapping="Wrap"
+                                     Cursor="IBeam"
+                                     FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Новый русский" Width="2*" SortMemberPath="NewRuText">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding NewRuText, UpdateSourceTrigger=PropertyChanged}"
+                                     IsReadOnly="{Binding IsApproved}"
+                                     BorderThickness="0"
+                                     MouseDoubleClick="EditLongText"
+                                     Background="Transparent"
+                                     FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Новый английский" Width="2*" SortMemberPath="NewEngText">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding NewEngText, UpdateSourceTrigger=PropertyChanged}"
+                                     IsReadOnly="{Binding IsApproved}"
+                                     BorderThickness="0"
+                                     MouseDoubleClick="EditLongText"
+                                     Background="Transparent"
+                                     FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="110">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button x:Name="Approve" Click="Approve_Click" FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Content" Value="✔ Утвердить"/>
+                                        <Setter Property="ToolTip" Value="Утвердить перевод"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsApproved}" Value="True">
+                                                <Setter Property="Content" Value="✖ Снять"/>
+                                                <Setter Property="ToolTip" Value="Снять утверждение"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

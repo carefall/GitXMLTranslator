@@ -15,6 +15,7 @@ namespace RestXMLTranslator
         {
             InitializeComponent();
             Logger.Setup();
+            Settings.OnUserDeclined += Shutdown;
             settings = new();
             if (settings.name != "")
             {
@@ -23,6 +24,13 @@ namespace RestXMLTranslator
                 Text.Text = $"Добро пожаловать, {settings.name}. Идёт синхронизация.";
                 StartUpdate();
             }
+        }
+
+        private void Shutdown()
+        {
+            Settings.OnUserDeclined -= Shutdown;
+            Close();
+            return;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

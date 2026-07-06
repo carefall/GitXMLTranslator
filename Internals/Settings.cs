@@ -7,7 +7,7 @@ namespace RestXMLTranslator.Internals
 {
     internal class Settings
     {
-
+        public static Action? OnUserDeclined;
         public string gamedataPath = "";
         public string name = "";
         public int version = 0;
@@ -52,7 +52,11 @@ namespace RestXMLTranslator.Internals
                     while (dialog.ShowDialog() != true)
                     {
                         var result = MessageBox.Show("Выберите папку, куда будут размещены файлы(папка gamedata и её содержимое)", "Настройка", MessageBoxButton.YesNo);
-                        if (result == MessageBoxResult.No) Application.Current.Shutdown();
+                        if (result == MessageBoxResult.No)
+                        {
+                            OnUserDeclined?.Invoke();
+                            return;
+                        }
                     }
                     string path = dialog.FolderName;
                     Logger.Log("Settings", $"GameData path selected: {path}");
