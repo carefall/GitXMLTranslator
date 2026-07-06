@@ -9,19 +9,18 @@ namespace RestXMLTranslator
     {
 
         private static readonly Regex _regex = new(@"^[\p{L}\p{Nd}\s.,-]*$", RegexOptions.Compiled);
-        private Settings settings;
 
         public StartupWindow()
         {
             InitializeComponent();
             Logger.Setup();
             Settings.OnUserDeclined += Shutdown;
-            settings = new();
-            if (settings.name != "")
+            MainWindow.OnShutdown += Shutdown;
+            if (Settings.GetInstance().name != "")
             {
                 ContinueButton.Visibility = Visibility.Hidden;
                 NameBox.Visibility = Visibility.Hidden;
-                Text.Text = $"Добро пожаловать, {settings.name}. Идёт синхронизация.";
+                Text.Text = $"Добро пожаловать, {Settings.GetInstance().name}. Идёт синхронизация.";
                 StartUpdate();
             }
         }
@@ -35,7 +34,7 @@ namespace RestXMLTranslator
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            settings.UpdateName(NameBox.Text);
+            Settings.GetInstance().UpdateName(NameBox.Text);
             StartUpdate();
 
         }
@@ -44,14 +43,22 @@ namespace RestXMLTranslator
         {
             Logger.Log("Startup", "Performing update check...");
             ContinueButton.IsEnabled = false;
-            int result = await RestClient.Check(settings.gamedataPath, settings.version);
+            int result = await RestClient.Check(Settings.GetInstance().gamedataPath, Settings.GetInstance().version);
             if (result == -1)
             {
                 Application.Current.Shutdown();
                 return;
             }
-            Logger.Log("Startup", "Successful update check. Moving to MainWindow");
-            new MainWindow(settings.name).Show();
+            if (result == 1)
+            {
+                MessageBox.Show("Нет интернета либо сервис недоступен.", "Синхронизация");
+                Logger.Log("Startup", "Update check failed due to service unavailability. Moving to MainWindow");
+                new MainWindow(false, Settings.GetInstance().gamedataPath).Show();
+            } else
+            {
+                Logger.Log("Startup", "Successful update check. Moving to MainWindow");
+                new MainWindow(true, Settings.GetInstance().gamedataPath).Show();
+            }
             Close();
             return;
         }

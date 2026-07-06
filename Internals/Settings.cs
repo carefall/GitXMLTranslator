@@ -16,6 +16,29 @@ namespace RestXMLTranslator.Internals
             WriteIndented = true
         };
 
+        private static Settings? instance;
+
+        public static Settings GetInstance()
+        {
+            instance ??= new();
+            return instance;
+        }
+
+        public void UpdateVersion(int version)
+        {
+            string settingsPath = AppDomain.CurrentDomain.BaseDirectory + "settings.json";
+            this.version = version;
+            var config = new Dictionary<string, object>
+            {
+                ["gamedata-path"] = gamedataPath,
+                ["name"] = name,
+                ["version"] = version
+            };
+            string data = JsonSerializer.Serialize(config, options);
+            File.WriteAllText(settingsPath, data);
+            Logger.Log("Settings", $"Updated version to {version} after installing update...");
+        }
+
         public Settings()
         {
             try
