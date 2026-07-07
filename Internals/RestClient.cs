@@ -246,7 +246,7 @@ namespace RestXMLTranslator.Internals
                         User = Settings.GetInstance().name
                     });
                 }
-                else
+                if (entry.HasEngChanges)
                 {
                     request.Entries.Add(new UploadEntry
                     {
@@ -258,7 +258,6 @@ namespace RestXMLTranslator.Internals
                 }
             }
             string body = JsonSerializer.Serialize(request, options);
-            MessageBox.Show(body);
             string json = await PostDataAsync($"https://nukerfall.pythonanywhere.com/translator/upload?filepath={file.RelativePath.Replace("\\", "/")}", body);
             if (json == "") return false;
             int version = JsonSerializer.Deserialize<int>(json);
