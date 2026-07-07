@@ -102,7 +102,7 @@ namespace RestXMLTranslator.Internals
         {
             try
             {
-                string json = await GetDataAsync("https://nukerfall.pythonanywhere.com/translator/files");
+                string json = await GetDataAsync("http://127.0.0.1:8000/translator/files");
                 if (json == "") return 1;
                 Dictionary<string, int> files = JsonSerializer.Deserialize<Dictionary<string, int>>(json) ?? [];
                 if (files.Count != 0)
@@ -134,7 +134,7 @@ namespace RestXMLTranslator.Internals
             foreach (var file in files)
             {
                 if (file.Value < version) continue;
-                string update = await GetDataAsync($"https://nukerfall.pythonanywhere.com/translator/download?version={version}&filepath={file.Key}");
+                string update = await GetDataAsync($"http://127.0.0.1:8000/translator/download?version={version}&filepath={file.Key}");
                 if (update == "") return 1;
                 List<HalfStringEntry>? entries = JsonSerializer.Deserialize<List<HalfStringEntry>>(update, options);
                 if (entries == null) continue;
@@ -258,7 +258,8 @@ namespace RestXMLTranslator.Internals
                 }
             }
             string body = JsonSerializer.Serialize(request, options);
-            string json = await PostDataAsync($"https://nukerfall.pythonanywhere.com/translator/upload?filepath={file.RelativePath.Replace("\\", "/")}", body);
+            MessageBox.Show(body);
+            string json = await PostDataAsync($"http://127.0.0.1:8000/translator/upload?filepath={file.RelativePath.Replace("\\", "/")}", body);
             if (json == "") return false;
             int version = JsonSerializer.Deserialize<int>(json);
             Settings.GetInstance().UpdateVersion(version);
@@ -268,7 +269,7 @@ namespace RestXMLTranslator.Internals
         public async static Task<List<DownloadedFile>?> Update(ObservableCollection<FileTab> tabs)
         {
             int version = Settings.GetInstance().version;
-            string json = await GetDataAsync("https://nukerfall.pythonanywhere.com/translator/files");
+            string json = await GetDataAsync("http://127.0.0.1:8000/translator/files");
             if (json == "") return null;
             Dictionary<string, int> files = JsonSerializer.Deserialize<Dictionary<string, int>>(json) ?? [];
             DeleteRedundantFilesWithTheirTabs(files, tabs);
@@ -276,7 +277,7 @@ namespace RestXMLTranslator.Internals
             foreach (var file in files)
             {
                 if (file.Value < version) continue;
-                string update = await GetDataAsync($"https://nukerfall.pythonanywhere.com/translator/download?version={version}&filepath={file.Key}");
+                string update = await GetDataAsync($"http://127.0.0.1:8000/translator/download?version={version}&filepath={file.Key}");
                 if (update == "") return null;
                 List<HalfStringEntry>? entries = JsonSerializer.Deserialize<List<HalfStringEntry>>(update, options);
                 if (entries == null) continue;
@@ -325,7 +326,7 @@ namespace RestXMLTranslator.Internals
 
         public async static Task<int> CompareVersions()
         {
-            string json = await GetDataAsync("https://nukerfall.pythonanywhere.com/translator/version");
+            string json = await GetDataAsync("http://127.0.0.1:8000/translator/version");
             if (json == "") return -1;
             int version = JsonSerializer.Deserialize<int>(json);
             if (version < Settings.GetInstance().version)

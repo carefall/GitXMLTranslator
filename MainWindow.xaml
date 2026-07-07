@@ -139,7 +139,7 @@
                     x:Name="FilesList"
                     Background="Transparent"
                     BorderThickness="0"
-                    ItemsSource="{Binding Files}"
+                    ItemsSource="{Binding FilesView}"
                     Loaded="FilesList_Loaded"
                     PreviewMouseWheel="FilesList_PreviewMouseWheel"
                     ScrollViewer.HorizontalScrollBarVisibility="Hidden"
@@ -158,7 +158,8 @@
                             <TextBlock
                                 MaxWidth="160"
                                 Text="{Binding Name}"
-                                TextTrimming="CharacterEllipsis" />
+                                TextTrimming="CharacterEllipsis"
+                                ToolTip="{Binding Tip}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -415,6 +416,7 @@
                         <DataGridTextColumn.CellStyle>
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Cursor" Value="IBeam" />
+                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown" />
                                 <EventSetter Event="PreviewMouseDoubleClick" Handler="EditLongText" />
                             </Style>
                         </DataGridTextColumn.CellStyle>

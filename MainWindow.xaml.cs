@@ -29,12 +29,15 @@ namespace RestXMLTranslator
 
             public string RelativePath { get; set; } = "";
 
+            public string Tip { get; set; } = "";
+
             public ObservableCollection<StringEntry> Entries { get; set; } = [];
 
             public FileTab(string path, string relativePath, bool read)
             {
                 FilePath = path;
                 RelativePath = relativePath;
+                Tip = RelativePath;
                 Name = Path.GetFileName(path);
                 if (!read) return;
                 string xml = File.ReadAllText(path, Encoding.GetEncoding(1251));
@@ -45,6 +48,7 @@ namespace RestXMLTranslator
             {
                 FilePath = Settings.GetInstance().gamedataPath + "/gamedata/configs/" + RelativePath;
                 Entries = new ObservableCollection<StringEntry>(entries);
+                Name = Path.GetFileName(FilePath);
                 string dir = Path.GetDirectoryName(FilePath)!;
                 if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 XDocument doc = new(new XElement("string_table"));
@@ -80,6 +84,7 @@ namespace RestXMLTranslator
         private ScrollViewer? scrollViewer;
         public ObservableCollection<FileTab> Files { get; } = [];
         private ICollectionView? _currentView;
+        public ICollectionView FilesView { get; }
 
         private string searchText = "";
 
@@ -135,6 +140,18 @@ namespace RestXMLTranslator
             var dloc = new DynamicLoc();
             dloc.Init(Locale.Get("btn_approve"), Locale.Get("tip_approve"), Locale.Get("btn_decline"), Locale.Get("tip_decline"));
             Resources["Loc"] = dloc;
+            FilesView = CollectionViewSource.GetDefaultView(Files);
+            FilesView.Filter = FilterFile;
+            FilesView.Refresh();
+        }
+
+        private bool FilterFile(object obj)
+        {
+            if (obj is not FileTab file)
+                return false;
+            if (string.IsNullOrWhiteSpace(searchText))
+                return true;
+            return file.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
 
         private void ApplyChanges()
@@ -322,6 +339,8 @@ namespace RestXMLTranslator
                 {
                     file.WriteToDisk(dfile.Entries);
                     Files.Add(file);
+                    FilesList.ScrollIntoView(file);
+                    FilesList.UpdateLayout();
                     continue;
                 }
                 FileTab bro = seq.First();
@@ -454,6 +473,7 @@ namespace RestXMLTranslator
         {
             searchText = SearchBox.Text;
             _currentView?.Refresh();
+            FilesView.Refresh();
         }
 
         private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
