@@ -37,6 +37,7 @@
                 FontFamily="Segoe UI, Noto Sans, Arial, Times New Roman"
                 IsDefault="True" />
             <Button
+                x:Name="Cancel"
                 Width="80"
                 Margin="5"
                 Content="Отмена"

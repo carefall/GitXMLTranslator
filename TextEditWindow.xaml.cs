@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using RestXMLTranslator.Internals;
+using System.Windows;
 
 namespace RestXMLTranslator
 {
@@ -12,6 +13,8 @@ namespace RestXMLTranslator
             Editor.Text = text;
             Editor.Focus();
             Editor.CaretIndex = Editor.Text.Length;
+            Title = Locale.Get("enter_text");
+            Cancel.Content = Locale.Get("btn_cancel");
         }
 
         private void Ok_Click(object sender, RoutedEventArgs e)

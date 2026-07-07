@@ -71,12 +71,12 @@ namespace RestXMLTranslator.Internals
                     Logger.Log("Settings", "GameData path not found...");
                     var dialog = new OpenFolderDialog
                     {
-                        Title = "Выберите папку с gamedata",
+                        Title = Locale.Get("select_gamedata"),
                         InitialDirectory = @"C:\"
                     };
                     while (dialog.ShowDialog() != true)
                     {
-                        var result = MessageBox.Show("Выберите папку, куда будут размещены файлы(папка gamedata и её содержимое)", "Настройка", MessageBoxButton.YesNo);
+                        var result = MessageBox.Show(Locale.Get("select_gamedata_dialog"), Locale.Get("settings"), MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
                         if (result == MessageBoxResult.No)
                         {
                             OnUserDeclined?.Invoke();
@@ -103,7 +103,7 @@ namespace RestXMLTranslator.Internals
             catch (Exception ex)
             {
                 Logger.Log("Settings", $"Unhandled exception: {ex}");
-                MessageBox.Show("Произошла неизвестная ошибка при обработке папки gamedata. Обратитесь к разработчику. К обращению приложите файл log.txt", "Настройки");
+                MessageBox.Show(Locale.Get("gamedata_exception"), Locale.Get("settings"), MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
         }
@@ -130,7 +130,7 @@ namespace RestXMLTranslator.Internals
             catch (Exception ex)
             {
                 Logger.Log("Settings", $"Unhandled exception: {ex}");
-                MessageBox.Show("Произошла неизвестная ошибка при обработке имени. Обратитесь к разработчику. К обращению приложите файл log.txt", "Настройки");
+                MessageBox.Show(Locale.Get("name_exception"), Locale.Get("settings"), MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
 

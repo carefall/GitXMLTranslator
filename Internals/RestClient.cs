@@ -123,7 +123,7 @@ namespace RestXMLTranslator.Internals
             catch (Exception ex)
             {
                 Logger.Log("RestClient-Sync", $"Unhandled exception: {ex}");
-                MessageBox.Show("Произошла неизвестная ошибка при синхронизации. Обратитесь к разработчику. К обращению приложите файл log.txt", "Синхронизация");
+                MessageBox.Show(Locale.Get("sync_fail"), Locale.Get("sync"));
                 return -1;
             }
         }
@@ -143,7 +143,7 @@ namespace RestXMLTranslator.Internals
                 if (dir == null)
                 {
                     Logger.Log("RestClient-Drive", $"Unable to create folder {dir}");
-                    MessageBox.Show($"Не удалось создать путь {dir}. Обратитесь к разработчику. К обращению приложите файл log.txt", "Синхронизация");
+                    MessageBox.Show(Locale.Get("sync_fail", dir ?? "UNDEFINED"), Locale.Get("sync"));
                     Application.Current.Shutdown();
                     return -1;
                 }

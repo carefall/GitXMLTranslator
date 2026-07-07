@@ -50,21 +50,21 @@ namespace RestXMLTranslator.Internals
                 }
                 catch (XmlException ex)
                 {
-                    MessageBox.Show("XML повреждён. Возможно, не закрыт один из тегов. Более точная информация в log.txt", "Ошибка загрузки XML");
+                    MessageBox.Show(Locale.Get("xml_corrupt"), Locale.Get("xml_load_fail"), MessageBoxButton.OK, MessageBoxImage.Error);
                     Logger.Log("XMLParser", $"XML Exception during parsing wrapped XML: {ex}");
                     return [];
                 }
                 catch (Exception ex)
                 {
                     Logger.Log("XMLParser", $"Unhandled exception: {ex}");
-                    MessageBox.Show("Произошла неизвестная ошибка при второй обработке XML. Обратитесь к разработчику. К обращению приложите файл log.txt", "Ошибка загрузки XML");
+                    MessageBox.Show(Locale.Get("xml_fail_two"), Locale.Get("xml_load_fail"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return [];
                 }
             }
             catch (Exception ex)
             {
                 Logger.Log("XMLParser-Read", $"Unhandled exception: {ex}");
-                MessageBox.Show("Произошла неизвестная ошибка при первичной обработке XML. Обратитесь к разработчику. К обращению приложите файл log.txt", "Ошибка загрузки XML");
+                MessageBox.Show(Locale.Get("xml_fail_one"), Locale.Get("xml_load_fail"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return [];
             }
         }

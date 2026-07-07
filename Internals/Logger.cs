@@ -15,7 +15,7 @@ namespace RestXMLTranslator.Internals
                 writer.WriteLine($"[{DateTime.Now}] [{thrower}]: {message}");
             } catch (Exception)
             {
-                MessageBox.Show("Не удалось записать информацию в файл лога. Это очень плохо ;(", "Логирование", MessageBoxButton.OK);
+                MessageBox.Show("Не удалось записать информацию в файл log.txt.\nUnable to write data to log.txt file.", "Логирование / Logging", MessageBoxButton.OK);
             }
         }
 
@@ -28,7 +28,7 @@ namespace RestXMLTranslator.Internals
                 Log("Logger", "Logging initialized");
             } catch (Exception)
             {
-                MessageBox.Show("Не удалось создать файл лога. Это очень плохо ;(", "Запуск", MessageBoxButton.OK);
+                MessageBox.Show("Не удалось записать информацию в файл log.txt.\nUnable to write data to log.txt file.", "Логирование / Logging", MessageBoxButton.OK);
             }
         }
     }

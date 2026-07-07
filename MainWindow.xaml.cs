@@ -6,7 +6,6 @@ using System.IO;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Threading.Channels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -72,7 +71,7 @@ namespace RestXMLTranslator
         public MainWindow(bool online, string gameDataPath)
         {
             InitializeComponent();
-            Title = "RestXMLTranslator - " + (online ? $"Подключено (последняя синхронизация: {GetCurrentTimeHM()})" : "Нет соединения с сервером");
+            Title = Locale.Get("window_title", online ? Locale.Get("connected", GetCurrentTimeHM()) : Locale.Get("not_connected"));
             DataContext = this;
             string path = gameDataPath + "/gamedata/configs";
             var files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
@@ -82,7 +81,7 @@ namespace RestXMLTranslator
             }
             if (Files.Count == 0)
             {
-                MessageBox.Show("Не найдено ни одного файла.", "Перевод");
+                MessageBox.Show(Locale.Get("no_files_found"), Locale.Get("translation"), MessageBoxButton.OK, MessageBoxImage.Error);
                 OnShutdown?.Invoke();
                 return;
             }
@@ -90,6 +89,24 @@ namespace RestXMLTranslator
             {
                 ApplyChanges();
             }
+            Save.Content = Locale.Get("btn_commit");
+            SaveLocal.Content = Locale.Get("btn_save_file");
+            SaveAllLocal.Content = Locale.Get("btn_save_all");
+            LoadTranslation.Content = Locale.Get("btn_load_file");
+            LoadBufferTranslation.Content = Locale.Get("btn_load_buffer");
+            HideApproved.Content = Locale.Get("btn_hide_approved");
+            HideChanged.Content = Locale.Get("btn_hide_changed");
+            HideUnchanged.Content = Locale.Get("btn_hide_unchanged");
+            SyncTitle.Text = Locale.Get("sync_title");
+            SearchPlaceholder.Text = Locale.Get("search_placeholder");
+            NewEngColumn.Header = Locale.Get("new_eng");
+            NewRuColumn.Header = Locale.Get("new_ru");
+            EngColumn.Header = Locale.Get("eng");
+            RuColumn.Header = Locale.Get("ru");
+            StatusColumn.Header = Locale.Get("translation_status");
+            var dloc = new DynamicLoc();
+            dloc.Init(Locale.Get("btn_approve"), Locale.Get("tip_approve"), Locale.Get("btn_decline"), Locale.Get("tip_decline"));
+            Resources["Loc"] = dloc;
         }
 
         private void ApplyChanges()
@@ -153,18 +170,18 @@ namespace RestXMLTranslator
         {
             OpenFileDialog dialog = new()
             {
-                Filter = "XML файлы (*.xml)|*.xml"
+                Filter = "XML files (*.xml)|*.xml"
             };
             if (dialog.ShowDialog() != true)
                 return;
             try
             {
                 string xml = File.ReadAllText(dialog.FileName, Encoding.GetEncoding(1251));
-                if (LoadTranslationFromXML(xml)) MessageBox.Show("Переводы загружены из файла.", "Перевод");
+                if (LoadTranslationFromXML(xml)) MessageBox.Show(Locale.Get("loaded_from_file"), Locale.Get("translation"));
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Не удалось обработать файл. Обратитесь к разработчику. Приложите файл log.txt.", "Ошибка загрузки файла");
+                MessageBox.Show(Locale.Get("parse_file_fail"), Locale.Get("file_load_error"));
                 Logger.Log("Translator-FileRead", $"Unhandled exception: {ex}");
             }
         }
@@ -173,10 +190,10 @@ namespace RestXMLTranslator
         {
             if (!Clipboard.ContainsText())
             {
-                MessageBox.Show("Буфер обмена не содержит текста.");
+                MessageBox.Show(Locale.Get("clipboard_empty"), Locale.Get("translation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (LoadTranslationFromXML(Clipboard.GetText())) MessageBox.Show("Переводы загружены из буфера.", "Перевод");
+            if (LoadTranslationFromXML(Clipboard.GetText())) MessageBox.Show(Locale.Get("clipboard_loaded"), Locale.Get("translation"));
         }
 
         private bool LoadTranslationFromXML(string text)
@@ -207,11 +224,13 @@ namespace RestXMLTranslator
         {
             if (FilesList.SelectedItem is not FileTab file) return;
             if (!file.HasApprovedChanges) return;
+            LoadingOverlay.Visibility = Visibility.Visible;
             bool? upToDate = await RestClient.CompareVersions();
             if (upToDate == null)
             {
-                MessageBox.Show("Соединение с сервером не установлено. Обновления будут сохранены локально до следующей успешной синхронизации.", "Синхронизация");
-                Title = "Нет соединения с сервером";
+                LoadingOverlay.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("server_unreachable"), Locale.Get("sync"));
+                Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 StoreChanges(file, true);
                 return;
             }
@@ -219,39 +238,45 @@ namespace RestXMLTranslator
             {
                 if (!(await RestClient.Upload(file)))
                 {
-                    MessageBox.Show("Соединение с сервером разорвано во время отправки изменений. Обновления будут сохранены локально до следующей успешной синхронизации.", "Синхронизация");
-                    Title = "Нет соединения с сервером";
+                    LoadingOverlay.Visibility = Visibility.Hidden;
+                    MessageBox.Show(Locale.Get("server_load_fail"), Locale.Get("sync"));
+                    Title = Locale.Get("window_title", Locale.Get("not_connected"));
                     StoreChanges(file, true);
                     return;
                 }
+                LoadingOverlay.Visibility = Visibility.Hidden;
                 SaveChangesLocally(file);
-                Title = $"Подключено (последняя синхронизация: {GetCurrentTimeHM()})";
+                Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
                 return;
             }
             List<DownloadedFile>? updates = await RestClient.Update(Files);
             if (updates == null)
             {
-                MessageBox.Show("Соединение с сервером разорвано во время синхронизации. Обновления будут сохранены локально до следующей успешной синхронизации.", "Синхронизация");
-                Title = "Нет соединения с сервером";
+                LoadingOverlay.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("server_update_fail"), Locale.Get("sync"));
+                Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 StoreChanges(file, true);
                 return;
             }
             Update(updates);
             if (!file.HasApprovedChanges)
             {
-                MessageBox.Show("В результате синхронизации АБСОЛЮТНО КАЖДЫЙ ваш перевод был заменён. Ваши изменения не будут применены.", "Синхронизация");
-                Title = $"Подключено (последняя синхронизация: {GetCurrentTimeHM()})";
+                LoadingOverlay.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("all_translations_replaced"), Locale.Get("sync"));
+                Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
                 return;
             }
             if (!(await RestClient.Upload(file)))
             {
-                MessageBox.Show("Соединение с сервером разорвано во время отправки изменений. Обновления будут сохранены локально до следующей успешной синхронизации.", "Синхронизация");
-                Title = "Нет соединения с сервером";
+                LoadingOverlay.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("server_load_fail"), Locale.Get("sync"));
+                Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 StoreChanges(file, true);
                 return;
             }
+            LoadingOverlay.Visibility = Visibility.Hidden;
             SaveChangesLocally(file);
-            Title = $"Подключено (последняя синхронизация: {GetCurrentTimeHM()})";
+            Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
             return;
         }
 
@@ -261,7 +286,7 @@ namespace RestXMLTranslator
             foreach (DownloadedFile dfile in updates)
             {
                 FileTab file = new FileTab("", dfile.Path, false);
-                foreach (var dEntry  in dfile.Entries)
+                foreach (var dEntry in dfile.Entries)
                 {
 
                 }
@@ -403,6 +428,25 @@ namespace RestXMLTranslator
                 SearchBox.SelectAll();
                 e.Handled = true;
             }
+            if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (FilesList.SelectedItem is FileTab tab)
+                {
+                    if (tab.HasChanges) StoreChanges(tab, true);
+                }
+                ShowStatusAsync(Locale.Get("file_saved"));
+                e.Handled = true;
+            }
+            if (e.Key == Key.S && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                foreach (var file in Files)
+                {
+                    if (!file.HasChanges) continue;
+                    StoreChanges(file, true);
+                }
+                ShowStatusAsync(Locale.Get("changes_saved"));
+                e.Handled = true;
+            }
         }
 
         private void EditLongText(object sender, MouseButtonEventArgs e)
@@ -482,6 +526,55 @@ namespace RestXMLTranslator
             {
                 e.Cancel = true;
             }
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (!Files.Where(f => f.HasChanges).Any()) return;
+            var result = MessageBox.Show(Locale.Get("unsaved_changes"), Locale.Get("saving"), MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    foreach (var file in Files)
+                    {
+                        StoreChanges(file, true);
+                    }
+                    break;
+
+                case MessageBoxResult.No:
+                    break;
+
+                case MessageBoxResult.Cancel:
+                    e.Cancel = true;
+                    break;
+            }
+        }
+
+        private void SaveLocal_Click(object sender, RoutedEventArgs e)
+        {
+            if (FilesList.SelectedItem is FileTab tab)
+            {
+                if (tab.HasChanges) StoreChanges(tab, true);
+            }
+            ShowStatusAsync(Locale.Get("file_saved"));
+            e.Handled = true;
+        }
+
+        private void SaveAllLocal_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var file in Files)
+            {
+                if (file.HasChanges) continue;
+                StoreChanges(file, true);
+            }
+            ShowStatusAsync(Locale.Get("changes_saved"));
+        }
+
+        private async Task ShowStatusAsync(string text)
+        {
+            Status.Text = text;
+            await Task.Delay(2000);
+            Status.Text = string.Empty;
         }
     }
 }

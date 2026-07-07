@@ -12,10 +12,17 @@
 
   <ItemGroup>
     <None Remove="appIcon.ico" />
+    <None Remove="locale.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="appIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="locale.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
