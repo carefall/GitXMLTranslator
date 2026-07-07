@@ -137,6 +137,7 @@ namespace RestXMLTranslator
             EngColumn.Header = Locale.Get("eng");
             RuColumn.Header = Locale.Get("rus");
             StatusColumn.Header = Locale.Get("translation_status");
+            Sync.Content = Locale.Get("btn_sync");
             var dloc = new DynamicLoc();
             dloc.Init(Locale.Get("btn_approve"), Locale.Get("tip_approve"), Locale.Get("btn_decline"), Locale.Get("tip_decline"));
             Resources["Loc"] = dloc;

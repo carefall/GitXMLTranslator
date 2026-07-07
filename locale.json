@@ -36,6 +36,7 @@
   "btn_load_buffer": "Загрузить перевод из буфера",
   "btn_hide_approved": "Скрыть утверждённые",
   "btn_hide_unchanged": "Скрыть неизменённые",
+  "btn_sync": "Загрузить изменения",
   "btn_hide_changed": "Скрыть изменённые",
   "search_placeholder": "Поиск...",
   "new_eng": "Новый английский",
