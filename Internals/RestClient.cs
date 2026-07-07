@@ -56,7 +56,7 @@ namespace RestXMLTranslator.Internals
         {
             public string Path { get; set; } = string.Empty;
 
-            public List<RestXMLTranslator.Internals.XMLHelper.StringEntry> Entries { get; set; } = [];
+            public List<XMLHelper.StringEntry> Entries { get; set; } = [];
         }
 
         public static async Task<string> GetDataAsync(string endpoint)
@@ -293,6 +293,8 @@ namespace RestXMLTranslator.Internals
                             NewRu = entry.Russian ? entry.Text! : "",
                             Eng = !entry.Russian ? entry.Text! : "",
                             NewEng = !entry.Russian ? entry.Text! : "",
+                            downloadedRu = entry.Russian,
+                            downloadedEng = !entry.Russian
                         });
                     }
                     else
@@ -300,6 +302,7 @@ namespace RestXMLTranslator.Internals
                         var pair = seq.First();
                         if (entry.Russian)
                         {
+                            pair.downloadedRu = true;
                             pair.Ru = entry.Text!;
                             pair.NewRu = entry.Text!;
                         }
@@ -307,6 +310,7 @@ namespace RestXMLTranslator.Internals
                         {
                             pair.Eng = entry.Text!;
                             pair.NewEng = entry.Text!;
+                            pair.downloadedEng = true;
                         }
                     }
                 }
@@ -319,17 +323,18 @@ namespace RestXMLTranslator.Internals
             return result;
         }
 
-        public async static Task<bool?> CompareVersions()
+        public async static Task<int> CompareVersions()
         {
             string json = await GetDataAsync("https://nukerfall.pythonanywhere.com/translator/version");
-            if (json == "") return null;
+            if (json == "") return -1;
             int version = JsonSerializer.Deserialize<int>(json);
             if (version < Settings.GetInstance().version)
             {
                 Logger.Log("RestClient-Sync", $"Somehow client version is higher than server version: {Settings.GetInstance().version} against {version}");
                 Settings.GetInstance().version = 0;
+                MessageBox.Show(Locale.Get("sync_version_higher"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            return Settings.GetInstance().version == version;
+            return version;
         }
 
 

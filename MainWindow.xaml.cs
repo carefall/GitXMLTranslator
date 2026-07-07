@@ -253,8 +253,8 @@ namespace RestXMLTranslator
             if (FilesList.SelectedItem is not FileTab file) return;
             if (!file.HasApprovedChanges) return;
             LoadingOverlay.Visibility = Visibility.Visible;
-            bool? upToDate = await RestClient.CompareVersions();
-            if (upToDate == null)
+            int version = await RestClient.CompareVersions();
+            if (version == -1)
             {
                 LoadingOverlay.Visibility = Visibility.Hidden;
                 MessageBox.Show(Locale.Get("server_unreachable"), Locale.Get("sync"));
@@ -262,7 +262,7 @@ namespace RestXMLTranslator
                 StoreChanges(file, true);
                 return;
             }
-            if (upToDate == true)
+            if (version == Settings.GetInstance().version)
             {
                 Logger.Log("RestClient-Get", $"Before commit, program is up to date(with version: {Settings.GetInstance().version})");
                 if (!(await RestClient.Upload(file)))
@@ -288,6 +288,7 @@ namespace RestXMLTranslator
                 StoreChanges(file, true);
                 return;
             }
+            Settings.GetInstance().UpdateVersion(version);
             Update(updates);
             if (!file.HasApprovedChanges)
             {
@@ -313,7 +314,6 @@ namespace RestXMLTranslator
 
         private void Update(List<DownloadedFile> updates)
         {
-            Logger.Log("RestClient-Get", $"Before commit, program installed updates for files: {string.Join(',', updates.Select(u => u.Path).ToArray())}");
             foreach (DownloadedFile dfile in updates)
             {
                 FileTab file = new FileTab("", dfile.Path, false);
@@ -334,13 +334,23 @@ namespace RestXMLTranslator
                         continue;
                     }
                     StringEntry toChange = entrySeq.First();
-                    toChange.IsApproved = false;
-                    toChange.Ru = entry.Ru;
-                    toChange.NewRu = entry.NewRu;
-                    toChange.Eng = entry.Eng;
-                    toChange.NewEng = entry.NewEng;
+                    if (toChange.HasRuChanges && entry.downloadedRu && toChange.HasEngChanges && entry.downloadedEng)
+                        toChange.IsApproved = false;
+                    else if (toChange.HasRuChanges && entry.downloadedRu)
+                        toChange.IsApproved = false;
+                    else if (toChange.HasEngChanges && entry.downloadedEng)
+                        toChange.IsApproved = false;
+                    if (entry.downloadedRu)
+                    {
+                        toChange.Ru = entry.Ru;
+                        toChange.NewRu = entry.NewRu;
+                    }
+                    if (entry.downloadedEng)
+                    {
+                        toChange.Eng = entry.Eng;
+                        toChange.NewEng = entry.NewEng;
+                    }
                 }
-                Logger.Log("RestClient-Get", $"Writing file {file.Name} and storing it's changes");
                 WriteFile(bro);
                 StoreChanges(bro, true);
             }
@@ -567,7 +577,7 @@ namespace RestXMLTranslator
 
         private async void SaveAllLocal_Click(object sender, RoutedEventArgs e)
         {
-            e.Handled = true;;
+            e.Handled = true;
             MessageBox.Show("1");
             if (!Files.Where(f => f.HasChanges).Any()) return;
             MessageBox.Show("2");
@@ -586,6 +596,59 @@ namespace RestXMLTranslator
             Status.Text = text;
             await Task.Delay(2000);
             Status.Text = string.Empty;
+        }
+
+        private void DataGridCell_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is DataGridCell cell && !cell.IsEditing && !cell.IsReadOnly)
+            {
+                cell.Focus();
+                if (Grid.BeginEdit(e))
+                {
+                    e.Handled = true;
+                }
+                Grid.SelectedItem = cell.DataContext;
+            }
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var tb = (TextBox)sender;
+            tb.CaretIndex = tb.Text.Length;
+            tb.SelectionLength = 0;
+        }
+
+        private async void Sync_Click(object sender, RoutedEventArgs e)
+        {
+            LoadingOverlay.Visibility = Visibility.Visible;
+            int version = await RestClient.CompareVersions();
+            if (version == -1)
+            {
+                LoadingOverlay.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("server_unreachable"), Locale.Get("sync"));
+                Title = Locale.Get("window_title", Locale.Get("not_connected"));
+                return;
+            }
+            if (version == Settings.GetInstance().version)
+            {
+                LoadingOverlay.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("sync_up_to_date"), Locale.Get("sync"));
+                Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
+                return;
+            }
+            List<DownloadedFile>? updates = await RestClient.Update(Files);
+            if (updates == null)
+            {
+                LoadingOverlay.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("server_update_fail"), Locale.Get("sync"));
+                Title = Locale.Get("window_title", Locale.Get("not_connected"));
+                return;
+            }
+            Settings.GetInstance().UpdateVersion(version);
+            Update(updates);
+            LoadingOverlay.Visibility = Visibility.Hidden;
+            MessageBox.Show(Locale.Get("synced"), Locale.Get("sync"));
+            Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
         }
     }
 }

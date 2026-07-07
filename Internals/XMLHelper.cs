@@ -163,6 +163,8 @@ namespace RestXMLTranslator.Internals
 
             public bool HasEngChanges => Eng != NewEng;
 
+            public bool downloadedRu, downloadedEng;
+
         }
     }
 }

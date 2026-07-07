@@ -183,6 +183,17 @@
                         FontWeight="SemiBold"
                         Foreground="White" />
                     <Button
+                        x:Name="Sync"
+                        MinWidth="160"
+                        Margin="10,0,0,0"
+                        Padding="5,0,5,0"
+                        Background="#4A90E2"
+                        BorderBrush="#3B78C2"
+                        Click="Sync_Click"
+                        Content="Загрузить изменения"
+                        FontWeight="SemiBold"
+                        Foreground="White" />
+                    <Button
                         x:Name="SaveLocal"
                         MinWidth="160"
                         Margin="10,0,0,0"
@@ -317,26 +328,65 @@
                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="Black" />
                 </DataGrid.Resources>
                 <DataGrid.Columns>
-                    <DataGridTextColumn
+                    <DataGridTemplateColumn
                         Width="220"
-                        Binding="{Binding Id}"
                         Header="ID"
-                        IsReadOnly="True"
-                        SortMemberPath="Id" />
-                    <DataGridTextColumn
+                        SortMemberPath="Id">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                    Padding="2,0"
+                                    VerticalContentAlignment="Center"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    IsReadOnly="True"
+                                    Text="{Binding Id}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn
                         x:Name="RuColumn"
                         Width="2*"
-                        Binding="{Binding Ru}"
                         Header="Русский"
-                        IsReadOnly="True"
-                        SortMemberPath="Ru" />
-                    <DataGridTextColumn
+                        SortMemberPath="Ru">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                    Padding="2,0"
+                                    VerticalContentAlignment="Center"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Cursor="Arrow"
+                                    IsReadOnly="True"
+                                    MaxLines="4"
+                                    Text="{Binding Ru}"
+                                    TextWrapping="Wrap"
+                                    VerticalScrollBarVisibility="Hidden" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn
                         x:Name="EngColumn"
                         Width="2*"
-                        Binding="{Binding Eng}"
                         Header="Английский"
-                        IsReadOnly="True"
-                        SortMemberPath="Eng" />
+                        SortMemberPath="Eng">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                    Padding="2,0"
+                                    VerticalContentAlignment="Center"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Cursor="Arrow"
+                                    IsReadOnly="True"
+                                    MaxLines="4"
+                                    Text="{Binding Eng}"
+                                    TextWrapping="Wrap"
+                                    VerticalScrollBarVisibility="Hidden" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn
                         x:Name="NewRuColumn"
                         Width="2*"
@@ -345,9 +395,16 @@
                         SortMemberPath="NewRu">
                         <DataGridTextColumn.CellStyle>
                             <Style TargetType="DataGridCell">
+                                <Setter Property="Cursor" Value="IBeam" />
+                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown" />
                                 <EventSetter Event="PreviewMouseDoubleClick" Handler="EditLongText" />
                             </Style>
                         </DataGridTextColumn.CellStyle>
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="TextBox">
+                                <EventSetter Event="GotFocus" Handler="TextBox_GotFocus" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
                     </DataGridTextColumn>
                     <DataGridTextColumn
                         x:Name="NewEngColumn"
@@ -357,9 +414,15 @@
                         SortMemberPath="NewEng">
                         <DataGridTextColumn.CellStyle>
                             <Style TargetType="DataGridCell">
+                                <Setter Property="Cursor" Value="IBeam" />
                                 <EventSetter Event="PreviewMouseDoubleClick" Handler="EditLongText" />
                             </Style>
                         </DataGridTextColumn.CellStyle>
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="TextBox">
+                                <EventSetter Event="GotFocus" Handler="TextBox_GotFocus" />
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
                     </DataGridTextColumn>
                     <DataGridTemplateColumn
                         x:Name="StatusColumn"
