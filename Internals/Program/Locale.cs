@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Text.Json;
 
-namespace RestXMLTranslator.Internals
+namespace RestXMLTranslator.Internals.Program
 {
     internal static class Locale
     {

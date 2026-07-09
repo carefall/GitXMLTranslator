@@ -4,9 +4,9 @@ using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace RestXMLTranslator.Internals
+namespace RestXMLTranslator.Internals.Program
 {
-    public class XMLHelper
+    public static class XMLHelper
     {
         public static string DecodeMultiline(string text)
         {

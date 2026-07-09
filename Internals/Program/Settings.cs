@@ -1,33 +1,19 @@
 ﻿using Microsoft.Win32;
 using System.IO;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Windows;
 
-namespace RestXMLTranslator.Internals
+namespace RestXMLTranslator.Internals.Program
 {
-    internal sealed class Settings
+    public class Settings
     {
         public string GameDataPath { get; private set; } = "";
         public string Name { get; private set; } = "";
         public int Version { get; private set; }
 
-        private static readonly string SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+        private readonly string SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
 
-        private static readonly JsonSerializerOptions Options = new()
-        {
-            WriteIndented = true,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
-
-        private static readonly Lazy<Settings> Instance = new(() => new Settings());
-
-        public static Settings GetInstance()
-        {
-            return Instance.Value;
-        }
-
-        private Settings()
+        public Settings()
         {
             try
             {
@@ -51,11 +37,9 @@ namespace RestXMLTranslator.Internals
             }
         }
 
-
         private void Load()
         {
             string json = File.ReadAllText(SettingsPath);
-
             try
             {
                 using JsonDocument doc = JsonDocument.Parse(json);
@@ -97,7 +81,6 @@ namespace RestXMLTranslator.Internals
             Logger.Log("Settings", $"User selected name: {name}.");
         }
 
-
         private void SelectGameDataFolder()
         {
             Logger.Log("Settings", "GameData path not found...");
@@ -125,7 +108,6 @@ namespace RestXMLTranslator.Internals
             }
         }
 
-
         private void Save()
         {
             var config = new Dictionary<string, object>
@@ -134,7 +116,7 @@ namespace RestXMLTranslator.Internals
                 ["name"] = Name,
                 ["version"] = Version
             };
-            string json = JsonSerializer.Serialize(config, Options);
+            string json = JsonSerializer.Serialize(config, App.Current.JsonOptions);
             File.WriteAllText(SettingsPath, json);
         }
     }

@@ -1,13 +1,13 @@
 ﻿using System.IO;
 using System.Windows;
 
-namespace RestXMLTranslator.Internals
+namespace RestXMLTranslator.Internals.Program
 {
     internal static class Logger
     {
 
         private static readonly string LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log.txt");
-        private static readonly object Lock = new();
+        private static readonly Lock Lock = new();
 
         public static void Log(string thrower, string message)
         {
@@ -26,7 +26,7 @@ namespace RestXMLTranslator.Internals
             }
         }
 
-        internal static void Setup()
+        public static void Setup()
         {
             try
             {

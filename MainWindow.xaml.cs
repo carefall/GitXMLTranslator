@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
-using RestXMLTranslator.Internals;
 using RestXMLTranslator.Internals.Models;
+using RestXMLTranslator.Internals.Program;
+using RestXMLTranslator.Internals.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -14,71 +15,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Xml;
 using System.Xml.Linq;
-using static RestXMLTranslator.Internals.XMLHelper;
+using static RestXMLTranslator.Internals.Program.XMLHelper;
 
 namespace RestXMLTranslator
 {
     public partial class MainWindow : Window
     {
-
-        public class FileTab
-        {
-            public string Name { get; set; } = "";
-            public string FilePath { get; set; } = "";
-
-            public string RelativePath { get; set; } = "";
-
-            public string Tip { get; set; } = "";
-
-            public ObservableCollection<StringEntry> Entries { get; set; } = [];
-
-            public FileTab(string path, string relativePath, bool read)
-            {
-                FilePath = path;
-                RelativePath = relativePath;
-                Tip = RelativePath;
-                Name = Path.GetFileName(path);
-                if (!read) return;
-                string xml = File.ReadAllText(path, Encoding.GetEncoding(1251));
-                Entries = LoadStrings(xml);
-            }
-
-            public void WriteToDisk(List<StringEntry> entries)
-            {
-                FilePath = Settings.GetInstance().GameDataPath + "/gamedata/configs/" + RelativePath;
-                Entries = new ObservableCollection<StringEntry>(entries);
-                Name = Path.GetFileName(FilePath);
-                string dir = Path.GetDirectoryName(FilePath)!;
-                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-                XDocument doc = new(new XElement("string_table"));
-                if (File.Exists(FilePath)) doc = XDocument.Load(FilePath);
-                var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
-                foreach (var entry in entries)
-                {
-                    if (!index.TryGetValue(entry.Id!, out var stringElement))
-                    {
-                        stringElement = new XElement("string", new XAttribute("id", entry.Id!));
-                        doc.Root.Add(stringElement);
-                        index[entry.Id!] = stringElement;
-                    }
-                    var node = doc.Root!;
-                    var rus = node.Element("rus");
-                    string text1 = EncodeMultiline(entry.Ru);
-                    if (rus == null) node.Add(new XElement("rus", text1));
-                    else rus.Value = text1;
-                    var eng = node.Element("eng");
-                    string text2 = EncodeMultiline(entry.Eng);
-                    if (eng == null) node.Add(new XElement("eng", text2));
-                    else eng.Value = text2;
-                }
-                using var writer = XmlWriter.Create(FilePath, settings);
-                doc.Save(writer);
-            }
-
-            public bool HasApprovedChanges => Entries.Where(e => e.IsApproved).Any();
-
-            public bool HasChanges => Entries.Where(e => e.HasChanges).Any();
-        }
 
         private ScrollViewer? scrollViewer;
         public ObservableCollection<FileTab> Files { get; } = [];
@@ -268,7 +210,7 @@ namespace RestXMLTranslator
             if (FilesList.SelectedItem is not FileTab file) return;
             if (!file.HasApprovedChanges) return;
             LoadingOverlay.Visibility = Visibility.Visible;
-            int version = await SyncService.CompareVersions();
+            int version = await App.Current.SyncService.CompareVersions();
             if (version == -1)
             {
                 LoadingOverlay.Visibility = Visibility.Hidden;
@@ -277,10 +219,14 @@ namespace RestXMLTranslator
                 StoreChanges(file, true);
                 return;
             }
-            if (version == Settings.GetInstance().Version)
+            if (version == -2)
             {
-                Logger.Log("RestClient-Get", $"Before commit, program is up to date(with version: {Settings.GetInstance().Version})");
-                if (!(await RestClient.Upload(file)))
+                MessageBox.Show(Locale.Get("sync_version_higher"), Locale.Get("sync"));
+            }
+            if (version == App.Current.Settings.Version)
+            {
+                Logger.Log("RestClient-Get", $"Before commit, program is up to date(with version: {App.Current.Settings.Version})");
+                if (!(await SyncService.Upload(file)))
                 {
                     LoadingOverlay.Visibility = Visibility.Hidden;
                     MessageBox.Show(Locale.Get("server_load_fail"), Locale.Get("sync"));
@@ -293,8 +239,8 @@ namespace RestXMLTranslator
                 Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
                 return;
             }
-            Logger.Log("RestClient-Get", $"Before commit, program was not up to date(with version: {Settings.GetInstance().Version})");
-            List<DownloadedFile>? updates = await SyncService.Update(Files);
+            Logger.Log("RestClient-Get", $"Before commit, program was not up to date(with version: {App.Current.Settings.Version})");
+            List<DownloadedFile>? updates = await App.Current.SyncService.EditorSync(Files);
             if (updates == null)
             {
                 LoadingOverlay.Visibility = Visibility.Hidden;
@@ -303,7 +249,7 @@ namespace RestXMLTranslator
                 StoreChanges(file, true);
                 return;
             }
-            Settings.GetInstance().UpdateVersion(version);
+            App.Current.Settings.UpdateVersion(version);
             Update(updates);
             if (!file.HasApprovedChanges)
             {
@@ -312,7 +258,7 @@ namespace RestXMLTranslator
                 Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
                 return;
             }
-            if (!(await RestClient.Upload(file)))
+            if (!(await SyncService.Upload(file)))
             {
                 LoadingOverlay.Visibility = Visibility.Hidden;
                 MessageBox.Show(Locale.Get("server_load_fail"), Locale.Get("sync"));
@@ -596,15 +542,11 @@ namespace RestXMLTranslator
         private async void SaveAllLocal_Click(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
-            MessageBox.Show("1");
             if (!Files.Where(f => f.HasChanges).Any()) return;
-            MessageBox.Show("2");
             foreach (var file in Files)
             {
-                MessageBox.Show(file.Name);
                 if (!file.HasChanges) continue;
                 StoreChanges(file, true);
-                MessageBox.Show("4");
             }
             await ShowStatusAsync(Locale.Get("changes_saved"));
         }
@@ -639,7 +581,7 @@ namespace RestXMLTranslator
         private async void Sync_Click(object sender, RoutedEventArgs e)
         {
             LoadingOverlay.Visibility = Visibility.Visible;
-            int version = await SyncService.CompareVersions();
+            int version = await App.Current.SyncService.CompareVersions();
             if (version == -1)
             {
                 LoadingOverlay.Visibility = Visibility.Hidden;
@@ -647,14 +589,14 @@ namespace RestXMLTranslator
                 Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 return;
             }
-            if (version == Settings.GetInstance().Version)
+            if (version == App.Current.Settings.Version)
             {
                 LoadingOverlay.Visibility = Visibility.Hidden;
                 MessageBox.Show(Locale.Get("sync_up_to_date"), Locale.Get("sync"));
                 Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
                 return;
             }
-            List<DownloadedFile>? updates = await SyncService.Update(Files);
+            List<DownloadedFile>? updates = await App.Current.SyncService.EditorSync(Files);
             if (updates == null)
             {
                 LoadingOverlay.Visibility = Visibility.Hidden;
@@ -662,7 +604,7 @@ namespace RestXMLTranslator
                 Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 return;
             }
-            Settings.GetInstance().UpdateVersion(version);
+            App.Current.Settings.UpdateVersion(version);
             Update(updates);
             LoadingOverlay.Visibility = Visibility.Hidden;
             MessageBox.Show(Locale.Get("synced"), Locale.Get("sync"));

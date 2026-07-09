@@ -1,4 +1,4 @@
-﻿using RestXMLTranslator.Internals;
+﻿using RestXMLTranslator.Internals.Program;
 using System.Windows;
 using System.Windows.Input;
 
