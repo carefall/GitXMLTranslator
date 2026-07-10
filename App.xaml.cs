@@ -20,6 +20,8 @@ namespace RestXMLTranslator
 
         public static new App Current => (App)Application.Current;
 
+        public MainWindow MWindow => (MainWindow)Application.Current.MainWindow;
+
         public readonly JsonSerializerOptions JsonOptions = new()
         {
             PropertyNameCaseInsensitive = true,

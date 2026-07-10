@@ -7,24 +7,61 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    Loaded="UserControl_Loaded"
     mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBox
-            x:Name="SearchBox"
+        <Grid
             Grid.Row="0"
-            Height="28"
-            Margin="5"
-            TextChanged="TextBox_TextChanged" />
+            Height="30"
+            MinWidth="150"
+            Margin="5,5,5,0"
+            HorizontalAlignment="Stretch">
+            <TextBox
+                x:Name="SearchBox"
+                Padding="20,0,5,0"
+                VerticalContentAlignment="Center"
+                TextChanged="SearchBox_TextChanged" />
+            <TextBlock
+                Margin="5,0,0,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                IsHitTestVisible="False"
+                Text="🔍" />
+            <TextBlock
+                x:Name="SearchPlaceholder"
+                Margin="25,0,0,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                IsHitTestVisible="False"
+                Text="{Binding Source={StaticResource Locale}, Path=[search_placeholder]}">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=SearchBox}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
         <ListBox
+            x:Name="FilesList"
             Grid.Row="1"
             Margin="5"
             ItemsSource="{Binding Files}"
-            SelectedItem="{Binding SelectedFile}">
+            ScrollViewer.HorizontalScrollBarVisibility="Visible"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+            SelectionChanged="FilesList_SelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>

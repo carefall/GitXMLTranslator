@@ -34,29 +34,38 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="4*" />
         </Grid.ColumnDefinitions>
-        <usercontrols:SyncPanel
+        <usercontrols:WindowBlocker
+            x:Name="WindowBlocker"
             Grid.ColumnSpan="3"
             Panel.ZIndex="100"
             Visibility="Hidden" />
-        <usercontrols:FileExplorer Grid.Column="0" MinWidth="200" />
+        <usercontrols:FileExplorer
+            x:Name="Files"
+            Grid.Column="0"
+            MinWidth="200" />
         <GridSplitter
             Grid.Column="1"
+            Margin="0,5,0,5"
             HorizontalAlignment="Stretch"
             Background="Gray"
             ResizeBehavior="PreviousAndNext" />
-        <!--  Сюда переезжают файлы  -->
-        <Grid Grid.Column="2">
-            <!--  А здесь всё остальное  -->
+        <Grid Grid.Column="2" Margin="0,5,0,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <usercontrols:ButtonsPanel Grid.Row="1" Margin="5,0,5,0" />
-            <usercontrols:TranslationGrid Grid.Row="2" Margin="5,0,5,0" />
+            <usercontrols:ButtonsPanel
+                x:Name="Buttons"
+                Grid.Row="0"
+                Margin="5,0,5,0" />
+            <usercontrols:TranslationGrid
+                x:Name="TranslationGrid"
+                Grid.Row="1"
+                Margin="5,5,5,0" />
         </Grid>
     </Grid>
 </Window>

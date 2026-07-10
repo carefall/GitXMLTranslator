@@ -13,9 +13,20 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
+        <Grid Grid.Row="0" Height="30">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <Button
-                MinWidth="160"
+                x:Name="Commit"
+                Grid.Column="0"
+                MinWidth="175"
                 Padding="5,0,5,0"
                 Background="#4A90E2"
                 BorderBrush="#3B78C2"
@@ -24,8 +35,10 @@
                 FontWeight="SemiBold"
                 Foreground="White" />
             <Button
-                MinWidth="160"
-                Margin="10,0,0,0"
+                x:Name="Download"
+                Grid.Column="1"
+                MinWidth="175"
+                Margin="9.5,0,0,0"
                 Padding="5,0,5,0"
                 Background="#4A90E2"
                 BorderBrush="#3B78C2"
@@ -34,79 +47,66 @@
                 FontWeight="SemiBold"
                 Foreground="White" />
             <Button
-                MinWidth="160"
+                x:Name="SaveFile"
+                Grid.Column="3"
+                MinWidth="175"
                 Margin="10,0,0,0"
                 Padding="5,0,5,0"
                 Click="SaveFile_Click"
                 Content="{Binding Source={StaticResource Locale}, Path=[btn_save_file]}" />
             <Button
-                MinWidth="160"
+                x:Name="SaveAll"
+                Grid.Column="4"
+                MinWidth="175"
                 Margin="10,0,0,0"
                 Padding="5,0,5,0"
                 Click="SaveAll_Click"
                 Content="{Binding Source={StaticResource Locale}, Path=[btn_save_all]}" />
             <Button
-                MinWidth="160"
+                x:Name="LoadFile"
+                Grid.Column="5"
+                MinWidth="175"
                 Margin="10,0,0,0"
                 Padding="5,0,5,0"
                 Click="LoadFile_Click"
                 Content="{Binding Source={StaticResource Locale}, Path=[btn_load_file]}" />
             <Button
-                MinWidth="160"
+                x:Name="LoadBuffer"
+                Grid.Column="6"
+                MinWidth="175"
                 Margin="10,0,10,0"
                 Padding="5,0,5,0"
                 Click="LoadBuffer_Click"
                 Content="{Binding Source={StaticResource Locale}, Path=[btn_load_buffer]}" />
-            <Border
-                MinWidth="180"
-                BorderBrush="Black"
-                BorderThickness="1">
-                <TextBlock
-                    x:Name="Status"
-                    MinWidth="180"
-                    Margin="5,0,5,0"
-                    Padding="5"
-                    HorizontalAlignment="Right"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    TextAlignment="Center" />
-            </Border>
-        </StackPanel>
-        <!--  FILTERS  -->
+        </Grid>
         <Grid
             Grid.Row="1"
-            Margin="0,10,0,0"
+            Margin="0,5,0,0"
             VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-
-            <ToggleButton
-                Grid.Column="0"
-                Checked="FilterChanged"
-                Content="{Binding Source={StaticResource Locale}, Path=[btn_hide_approved]}"
-                Unchecked="FilterChanged" />
-
-            <ToggleButton
-                x:Name="HideUnchanged"
-                Grid.Column="1"
-                Margin="10,0,10,0"
-                Checked="FilterChanged"
-                Content="{Binding Source={StaticResource Locale}, Path=[btn_hide_changed]}"
-                Unchecked="FilterChanged" />
-
-            <ToggleButton
-                x:Name="HideChanged"
-                Grid.Column="2"
-                Checked="FilterChanged"
-                Content="{Binding Source={StaticResource Locale}, Path=[btn_hide_unchanged]}"
-                Unchecked="FilterChanged" />
-
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <ToggleButton
+                    x:Name="HideApproved"
+                    Checked="FilterChanged"
+                    Content="{Binding Source={StaticResource Locale}, Path=[btn_hide_approved]}"
+                    Unchecked="FilterChanged" />
+                <ToggleButton
+                    x:Name="HideUnchanged"
+                    Margin="10,0,10,0"
+                    Checked="FilterChanged"
+                    Content="{Binding Source={StaticResource Locale}, Path=[btn_hide_unchanged]}"
+                    Unchecked="FilterChanged" />
+                <ToggleButton
+                    x:Name="HideChanged"
+                    Checked="FilterChanged"
+                    Content="{Binding Source={StaticResource Locale}, Path=[btn_hide_changed]}"
+                    Unchecked="FilterChanged" />
+            </StackPanel>
             <Grid
-                Grid.Column="3"
+                Grid.Column="1"
                 MinWidth="150"
                 Margin="10,0,0,0"
                 HorizontalAlignment="Stretch">

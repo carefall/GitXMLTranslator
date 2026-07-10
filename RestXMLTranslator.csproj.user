@@ -11,7 +11,7 @@
     <Compile Update="UserControls\FileExplorer.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="UserControls\SyncPanel.xaml.cs">
+    <Compile Update="UserControls\WindowBlocker.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="TextEditWindow.xaml.cs">

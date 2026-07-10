@@ -89,7 +89,6 @@ namespace RestXMLTranslator.Internals.Program
                 Title = Locale.Get("select_gamedata"),
                 InitialDirectory = @"C:\"
             };
-            MessageBox.Show("START");
             while (dialog.ShowDialog() != true)
             {
                 var result = MessageBox.Show(Locale.Get("select_gamedata_dialog"), Locale.Get("settings"), MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
@@ -99,9 +98,7 @@ namespace RestXMLTranslator.Internals.Program
                     return;
                 }
             }
-            MessageBox.Show("MID");
             GameDataPath = Path.GetFullPath(dialog.FolderName);
-            MessageBox.Show(GameDataPath);
             try
             {
                 Directory.CreateDirectory(Path.Combine(GameDataPath, "gamedata", "configs"));

@@ -14,6 +14,7 @@
         BeginningEdit="TGrid_BeginningEdit"
         CanUserAddRows="False"
         CanUserSortColumns="True"
+        ItemsSource="{Binding Entries, RelativeSource={RelativeSource AncestorType=UserControl}}"
         SelectionMode="Extended"
         SelectionUnit="FullRow">
         <DataGrid.Resources>
@@ -141,12 +142,12 @@
                         <Button x:Name="Approve" Click="Approve_Click">
                             <Button.Style>
                                 <Style TargetType="Button">
-                                    <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[btn_approve]}" />
-                                    <Setter Property="ToolTip" Value="{Binding Source={StaticResource Loc}, Path=[tip_approve]}" />
+                                    <Setter Property="Content" Value="{Binding Source={StaticResource Locale}, Path=[btn_approve]}" />
+                                    <Setter Property="ToolTip" Value="{Binding Source={StaticResource Locale}, Path=[tip_approve]}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsApproved}" Value="True">
-                                            <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[btn_decline]}" />
-                                            <Setter Property="ToolTip" Value="{Binding Source={StaticResource Loc}, Path=[tip_decline]}" />
+                                            <Setter Property="Content" Value="{Binding Source={StaticResource Locale}, Path=[btn_decline]}" />
+                                            <Setter Property="ToolTip" Value="{Binding Source={StaticResource Locale}, Path=[tip_decline]}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

@@ -1,8 +1,6 @@
 ﻿using RestXMLTranslator.Internals.Models;
 using RestXMLTranslator.Internals.Program;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.IO.Pipelines;
 using System.Text.Json;
 
 namespace RestXMLTranslator.Internals.Services
@@ -38,21 +36,25 @@ namespace RestXMLTranslator.Internals.Services
                     return 0;
                 }
                 return version;
-            } catch (Exception)
+            }
+            catch (Exception)
             {
-                Logger.Log("SyncService" , $"Server is broken. It returned {json} instead of int version");
-                App.Current.Shutdown();
-                return 0;
+                Logger.Log("SyncService", $"Server is broken. It returned {json} instead of int version");
+                return -2;
             }
         }
 
-        public async Task<List<DownloadedFile>?> EditorSync(ObservableCollection<FileTab> tabs)
+        public async Task<SyncResult> EditorSync()
         {
             int version = App.Current.Settings.Version;
             var serverFiles = await GetServerFiles();
-            if (serverFiles == null) return null;
-            App.Current.LocalFiles.DeleteRedundantFilesWithTabs(serverFiles, tabs);
-            return await DownloadUpdates(version);
+            if (serverFiles == null) return SyncResult.ServerUnavailable;
+            App.Current.LocalFiles.DeleteRedundantFiles(serverFiles);
+            App.Current.LocalFiles.DeleteChanges(serverFiles);
+            var updates = await DownloadUpdates(version);
+            if (updates == null) return SyncResult.ServerUnavailable;
+            SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
+            return result;
         }
 
         public async Task<SyncResult> StartupSync(string gameDataPath, int version, IProgress<string>? progress = null)
@@ -68,17 +70,14 @@ namespace RestXMLTranslator.Internals.Services
                 progress?.Report(Locale.Get("deleting_files"));
                 await Task.Run(() =>
                 {
-                    App.Current.LocalFiles.DeleteRedundantFiles(files, gameDataPath);
+                    App.Current.LocalFiles.DeleteRedundantFiles(files);
+                    App.Current.LocalFiles.DeleteChanges(files);
                 });
                 var updates = await DownloadUpdates(version);
                 if (updates == null) return SyncResult.ServerUnavailable;
-                int result = await App.Current.LocalFiles.ApplyUpdates(gameDataPath, updates);
-                if (result != 0) return SyncResult.Other;
-                await Task.Run(() =>
-                {
-                    App.Current.Settings.UpdateVersion(targetVersion);
-                });
-                return SyncResult.Success;
+                SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
+                if (result == SyncResult.Success) App.Current.Settings.UpdateVersion(targetVersion);
+                return result;
             }
             catch (Exception ex)
             {
@@ -95,7 +94,7 @@ namespace RestXMLTranslator.Internals.Services
             return files;
         }
 
-        public async static Task<bool> Upload(FileTab file)
+        public async Task<bool> Commit(FileTab file)
         {
             var seq = file.Entries.Where(e => e.IsApproved);
             if (seq == null || !seq.Any())

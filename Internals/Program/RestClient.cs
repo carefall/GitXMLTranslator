@@ -10,7 +10,7 @@ namespace RestXMLTranslator.Internals.Program
             Timeout = TimeSpan.FromSeconds(60)
         };
 
-        private const string BaseUrl = "http://127.0.0.1:8000/translator/";
+        private const string BaseUrl = "https://nukerfall.pythonanywhere.com/translator/";
 
         public static async Task<string> GetDataAsync(string endpoint)
         {

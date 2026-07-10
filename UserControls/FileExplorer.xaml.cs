@@ -1,19 +1,20 @@
 ﻿using RestXMLTranslator.Internals.Models;
-using RestXMLTranslator.Internals.Program;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows;
 
 namespace RestXMLTranslator.UserControls
 {
     public partial class FileExplorer : UserControl
     {
+
         private CancellationTokenSource? _searchCancellation;
         private string _searchText = "";
         public ObservableCollection<FileTab> Files { get; } = [];
-        public ICollectionView FilesView { get; private set; }
+
+        public ICollectionView? FilesView { get; private set; }
 
         public FileExplorer()
         {
@@ -25,14 +26,12 @@ namespace RestXMLTranslator.UserControls
 
         private bool FilterFile(object obj)
         {
-            if (obj is not FileTab file)
-                return false;
-            if (string.IsNullOrWhiteSpace(_searchText))
-                return true;
+            if (obj is not FileTab file) return false;
+            if (string.IsNullOrWhiteSpace(_searchText)) return true;
             return file.RelativePath.Contains(_searchText, StringComparison.OrdinalIgnoreCase);
         }
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             _searchText = SearchBox.Text;
             RefreshSearch();
@@ -45,23 +44,39 @@ namespace RestXMLTranslator.UserControls
             try
             {
                 await Task.Delay(250, _searchCancellation.Token);
-                FilesView.Refresh();
+                FilesView?.Refresh();
             }
             catch (TaskCanceledException) { }
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        private void FilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Files = App.Current.LocalFiles.ReadLocalFiles();
-            FilesView = CollectionViewSource.GetDefaultView(Files);
-            FilesView.Filter = FilterFile;
-            FilesView.Refresh();
-            if (Files.Count == 0)
+            if (FilesList.SelectedItem is not FileTab tab) return;
+            App.Current.MWindow.TranslationGrid.LoadFile(tab);
+        }
+
+        public async Task<bool> SaveAll(bool allowApprove)
+        {
+            if (!Files.Where(f => f.HasChanges).Any()) return false;
+            App.Current.MWindow.WindowBlocker.Visibility = Visibility.Visible;
+            await Task.Run(() =>
             {
-                MessageBox.Show(Locale.Get("no_files_found"), Locale.Get("translation"), MessageBoxButton.OK, MessageBoxImage.Error);
-                Application.Current.Shutdown();
-                return;
-            }
+                foreach (var file in Files)
+                {
+                    if (!file.HasChanges) continue;
+                    App.Current.LocalFiles.StoreChanges(file, allowApprove);
+                }
+            });
+            App.Current.MWindow.WindowBlocker.Visibility = Visibility.Hidden;
+            return true;
+        }
+
+        public bool SaveFile()
+        {
+            if (FilesList.SelectedItem is not FileTab tab) return false;
+            if (!tab.HasChanges) return false;
+            App.Current.LocalFiles.StoreChanges(tab, true);
+            return true;
         }
     }
 }

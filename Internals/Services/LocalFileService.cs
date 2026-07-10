@@ -2,19 +2,18 @@
 using RestXMLTranslator.Internals.Program;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
-using static System.Net.WebRequestMethods;
-
 namespace RestXMLTranslator.Internals.Services
 {
     public class LocalFileService
     {
-        public void DeleteRedundantFiles(Dictionary<string, int> files, string gameDataPath)
+        public void DeleteRedundantFiles(Dictionary<string, int> files)
         {
-
-            string path = Path.Combine(gameDataPath, "gamedata", "configs");
+            string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs");
             List<string> localFiles = GetLocalFiles(path);
             if (localFiles.Count == 0) return;
             if (files.Count == 0) return;
@@ -31,7 +30,42 @@ namespace RestXMLTranslator.Internals.Services
                     continue;
                 }
             }
+        }
 
+        public void DeleteChanges(Dictionary<string, int> files)
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes");
+            List<string> localFiles = GetLocalFiles(path);
+            if (localFiles.Count == 0) return;
+            if (files.Count == 0) return;
+            foreach (string item in localFiles)
+            {
+                if (files.ContainsKey(item.Replace(".json", ".xml"))) continue;
+
+                try
+                {
+                    File.Delete(Path.Combine(path, item));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log("LocalFileService", $"Unhandle exception on file {item} deletion: {ex}");
+                    continue;
+                }
+            }
+        }
+
+        public string? LoadFileText(string file)
+        {
+            try
+            {
+                return File.ReadAllText(file, Encoding.GetEncoding(1251));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(Locale.Get("parse_file_fail"), Locale.Get("file_load_error"));
+                Logger.Log("Translator-FileRead", $"Unhandled exception: {ex}");
+                return null;
+            }
         }
 
         private XElement GetOrCreateString(XElement root, Dictionary<string, XElement> index, string id)
@@ -69,49 +103,24 @@ namespace RestXMLTranslator.Internals.Services
             doc.Save(writer);
         }
 
-        public void DeleteRedundantFilesWithTabs(Dictionary<string, int> files, ObservableCollection<FileTab> tabs)
-        {
-            var filesToDelete = tabs.Where(t => !files.ContainsKey(t.RelativePath.Replace("\\", "/"))).ToList();
-            foreach (var tab in filesToDelete)
-            {
-                tabs.Remove(tab);
-                File.Delete(tab.FilePath);
-                string changesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes", tab.RelativePath.Replace("\\", "/").Replace(".xml", ".json"));
-                if (File.Exists(changesPath))
-                {
-                    File.Delete(changesPath);
-                }
-                else
-                {
-                    Logger.Log("LocalFileService", $"Unable to delete file {tab.RelativePath} because it is not found.");
-                }
-            }
-        }
-
-
-        public async Task<int> ApplyUpdates(string gameDataPath, List<DownloadedFile> files)
+        public async Task<SyncResult> ApplyUpdates(List<DownloadedFile> files)
         {
             try
             {
                 foreach (var file in files)
                 {
-                    string path = Path.Combine(gameDataPath, "gamedata", "configs", file.Path);
+                    string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs", file.Path);
                     string? dir = Path.GetDirectoryName(path);
-                    if (dir == null)
-                    {
-                        Logger.Log("LocalFileService", $"Unable to create folder {dir}");
-                        return -1;
-                    }
-                    Directory.CreateDirectory(dir);
+                    Directory.CreateDirectory(dir!);
                     ApplyHalfEntries(path, file.HalfEntries);
                 }
             }
             catch (Exception ex)
             {
                 Logger.Log("LocalFileService", $"Unhandled exception during changes applying: {ex}");
-                return -1;
+                return SyncResult.Other;
             }
-            return 0;
+            return SyncResult.Success;
         }
 
         public List<string> GetLocalFiles(string folderPath)
@@ -131,16 +140,88 @@ namespace RestXMLTranslator.Internals.Services
             }
         }
 
-        public async ObservableCollection<FileTab> ReadLocalFiles()
+        public async Task<ObservableCollection<FileTab>> ReadLocalFiles()
         {
             string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs");
             var files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
             ObservableCollection<FileTab> tabs = [];
             foreach (var file in files)
             {
-                tabs.Add(new FileTab(file, file.Replace(path, "")[1..].Replace("\\", "/")));
+                var relativePath = file.Replace(path, "")[1..].Replace("\\", "/");
+                var tab = new FileTab(file, relativePath);
+                await Task.Run(() =>
+                {
+                    tab.Read();
+                    ApplyChanges(tab);
+                });
+                if (tab.Entries.Count == 0) continue;
+                tabs.Add(tab);
             }
             return tabs;
+        }
+
+        private void ApplyChanges(FileTab file)
+        {
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes", file.RelativePath.Replace(".xml", ".json"));
+            if (!File.Exists(filePath)) return;
+            string json = File.ReadAllText(filePath, Encoding.GetEncoding(1251));
+            List<Change>? changes = JsonSerializer.Deserialize<List<Change>>(json, App.Current.JsonOptions);
+            changes ??= [];
+            foreach (Change change in changes)
+            {
+                var seq = file.Entries.Where(e => e.Id == change.Id);
+                if (!seq.Any()) continue;
+                StringEntry bro = seq.First();
+                bro.NewEng = change.Eng;
+                bro.NewRu = change.Ru;
+                if (!change.IsApproved) bro.IsApproved = false;
+                if (bro.HasChanges && change.IsApproved) bro.IsApproved = true;
+            }
+        }
+
+        public void StoreChanges(FileTab file, bool allowApprove)
+        {
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes", file.RelativePath.Replace(".xml", ".json"));
+            string directory = Path.GetDirectoryName(filePath)!;
+            Directory.CreateDirectory(directory);
+            List<Change>? changes = [];
+            foreach (StringEntry entry in file.Entries)
+            {
+                if (!entry.HasChanges) continue;
+                changes.Add(new Change(entry.Id, entry.NewRu, entry.NewEng, allowApprove ? entry.IsApproved : false));
+            }
+            if (changes.Count == 0 && File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+            else
+            {
+                File.WriteAllText(filePath, JsonSerializer.Serialize(changes, App.Current.JsonOptions), Encoding.GetEncoding(1251));
+            }
+        }
+
+        public ObservableCollection<StringEntry> Read(string filePath)
+        {
+            string xml = File.ReadAllText(filePath, Encoding.GetEncoding(1251));
+            return XMLHelper.LoadStrings(xml);
+        }
+
+        public async Task ApplyApprovedChanges(FileTab tab)
+        {
+            XDocument doc = new(new XElement("string_entry"));
+            if (File.Exists(tab.FilePath)) doc = XDocument.Load(tab.FilePath);
+            var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
+            foreach (var entry in tab.Entries)
+            {
+                XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
+                XElement rus = GetOrCreateLanguage(stringElement, "rus");
+                rus.Value = entry.NewRu;
+                XElement eng = GetOrCreateLanguage(stringElement, "eng");
+                eng.Value = entry.NewEng;
+                entry.IsApproved = false;
+            }
+            using var writer = XmlWriter.Create(tab.FilePath, App.Current.XmlSettings);
+            doc.Save(writer);
         }
     }
 }
