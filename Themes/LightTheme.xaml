@@ -18,4 +18,5 @@
     <SolidColorBrush x:Key="ApprovedBrush" Color="#4CAF50" />
     <SolidColorBrush x:Key="ChangedBrush" Color="Yellow" />
     <SolidColorBrush x:Key="SortInactiveBrush" Color="#666666" />
+    <SolidColorBrush x:Key="HighlightedBrush" Color="LightBlue" />
 </ResourceDictionary>

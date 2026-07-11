@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Windows;
 
@@ -11,7 +12,19 @@ namespace RestXMLTranslator.Internals.Program
         public string Name { get; private set; } = "";
         public int Version { get; private set; }
 
+        public bool LightTheme { get; private set; } = true;
+
+        public string Language { get; private set; } = "";
+
         private readonly string SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+
+        private readonly JsonSerializerOptions options = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            WriteIndented = true
+        };
 
         public Settings()
         {
@@ -24,10 +37,6 @@ namespace RestXMLTranslator.Internals.Program
                     Save();
                 }
                 Load();
-                if (string.IsNullOrWhiteSpace(GameDataPath))
-                {
-                    SelectGameDataFolder();
-                }
             }
             catch (Exception ex)
             {
@@ -47,6 +56,8 @@ namespace RestXMLTranslator.Internals.Program
                 GameDataPath = root.TryGetProperty("gamedata-path", out var path) ? path.GetString() ?? "" : "";
                 Name = root.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "";
                 Version = root.TryGetProperty("version", out var version) ? version.GetInt32() : 0;
+                LightTheme = !root.TryGetProperty("light-theme", out var lightTheme) || lightTheme.GetBoolean();
+                Language = root.TryGetProperty("language", out var language) ? language.GetString() ?? "" : "";
             }
             catch (JsonException ex)
             {
@@ -62,6 +73,8 @@ namespace RestXMLTranslator.Internals.Program
                 GameDataPath = "";
                 Name = "";
                 Version = 0;
+                LightTheme = true;
+                Language = "";
                 Save();
             }
         }
@@ -81,7 +94,7 @@ namespace RestXMLTranslator.Internals.Program
             Logger.Log("Settings", $"User selected name: {name}.");
         }
 
-        private void SelectGameDataFolder()
+        public void SelectGameDataFolder()
         {
             Logger.Log("Settings", "GameData path not found...");
             var dialog = new OpenFolderDialog
@@ -114,16 +127,38 @@ namespace RestXMLTranslator.Internals.Program
             return;
         }
 
+        public void SelectLanguage()
+        {
+            Logger.Log("Settings", "Language not selected...");
+            var dialog = new LanguageWindow();
+            while (dialog.ShowDialog() != true)
+            {
+                continue;
+            }
+            Language = dialog.IsEnglish ? "eng" : "rus";
+            Save();
+            Logger.Log("Settings", $"Language selected: {Language}");
+            return;
+        }
+
         private void Save()
         {
             var config = new Dictionary<string, object>
             {
                 ["gamedata-path"] = GameDataPath,
                 ["name"] = Name,
-                ["version"] = Version
+                ["version"] = Version,
+                ["light-theme"] = LightTheme,
+                ["language"] = Language
             };
-            string json = JsonSerializer.Serialize(config, App.Current.JsonOptions);
+            string json = JsonSerializer.Serialize(config, options);
             File.WriteAllText(SettingsPath, json);
+        }
+
+        public void SwitchTheme()
+        {
+            LightTheme = !LightTheme;
+            Save();
         }
     }
 }
