@@ -110,6 +110,7 @@ namespace RestXMLTranslator
                 Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 return;
             }
+            App.Current.LocalFiles.StoreChanges(tab);
             await App.Current.LocalFiles.ApplyApprovedChanges(tab);
             WindowBlocker.Visibility = Visibility.Hidden;
             MessageBox.Show(Locale.Get("synced"), Locale.Get("sync"));

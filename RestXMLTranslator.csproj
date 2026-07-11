@@ -9,7 +9,7 @@
 		<ApplicationIcon>appIcon.ico</ApplicationIcon>
 		<AssemblyTitle>RestXMLTranslator</AssemblyTitle>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<Version>2.5</Version>
+		<Version>2.6</Version>
 		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 

@@ -181,6 +181,11 @@ namespace RestXMLTranslator.Internals.Services
 
         public void StoreChanges(FileTab file, bool allowApprove)
         {
+            StoreChanges(file, allowApprove, false);
+        }
+
+        private void StoreChanges(FileTab file, bool allowApprove, bool ignoreApproved)
+        {
             string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes", file.RelativePath.Replace(".xml", ".json"));
             string directory = Path.GetDirectoryName(filePath)!;
             Directory.CreateDirectory(directory);
@@ -188,6 +193,7 @@ namespace RestXMLTranslator.Internals.Services
             foreach (StringEntry entry in file.Entries)
             {
                 if (!entry.HasChanges) continue;
+                if (ignoreApproved && entry.IsApproved) continue;
                 changes.Add(new Change(entry.Id, entry.NewRu, entry.NewEng, allowApprove ? entry.IsApproved : false));
             }
             if (changes.Count == 0 && File.Exists(filePath))
@@ -198,6 +204,11 @@ namespace RestXMLTranslator.Internals.Services
             {
                 File.WriteAllText(filePath, JsonSerializer.Serialize(changes, App.Current.JsonOptions), Encoding.GetEncoding(1251));
             }
+        }
+
+        public void StoreChanges(FileTab file)
+        {
+            StoreChanges(file, false, true);
         }
 
         public ObservableCollection<StringEntry> Read(string filePath)
@@ -215,9 +226,9 @@ namespace RestXMLTranslator.Internals.Services
             {
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
                 XElement rus = GetOrCreateLanguage(stringElement, "rus");
-                rus.Value = entry.NewRu;
+                rus.Value = entry.IsApproved ? entry.NewRu : entry.Ru;
                 XElement eng = GetOrCreateLanguage(stringElement, "eng");
-                eng.Value = entry.NewEng;
+                eng.Value = entry.IsApproved ? entry.NewEng : entry.Eng;
                 entry.IsApproved = false;
             }
             using var writer = XmlWriter.Create(tab.FilePath, App.Current.XmlSettings);

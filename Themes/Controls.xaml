@@ -253,36 +253,70 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <Style TargetType="Thumb">
+        <Setter Property="Background" Value="#666666" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="3" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#8A8A8A" />
+            </Trigger>
+
+            <Trigger Property="IsDragging" Value="True">
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="{TemplateBinding Background}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="ScrollBar">
         <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
-                    <Grid Height="5" Background="{TemplateBinding Background}">
-                        <Track x:Name="PART_Track" IsDirectionReversed="False">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageUpCommand" />
+                            </Track.DecreaseRepeatButton>
                             <Track.Thumb>
-                                <Thumb>
-                                    <Thumb.Style>
-                                        <Style TargetType="Thumb">
-                                            <Setter Property="Background" Value="#555555" />
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Thumb">
-                                                        <Border Background="{TemplateBinding Background}" CornerRadius="2" />
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#777777" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Thumb.Style>
-                                </Thumb>
+                                <Thumb Margin="1" />
                             </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageDownCommand" />
+                            </Track.IncreaseRepeatButton>
                         </Track>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Orientation" Value="Horizontal">
+                            <Setter TargetName="PART_Track" Property="Height" Value="10" />
+                            <Setter TargetName="PART_Track" Property="Width" Value="Auto" />
+                            <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False" />
+                        </Trigger>
+                        <Trigger Property="Orientation" Value="Vertical">
+                            <Setter TargetName="PART_Track" Property="Width" Value="10" />
+                            <Setter TargetName="PART_Track" Property="Height" Value="Auto" />
+                            <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="True" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
