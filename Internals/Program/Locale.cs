@@ -9,17 +9,18 @@ namespace RestXMLTranslator.Internals.Program
 
         private static IReadOnlyDictionary<string, string> locales = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public static void Init()
+        public static void Init(bool english)
         {
             try
             {
-                string json = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "locale.json"));
-                locales = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? throw new Exception("Deserialization of locale.json failed...");
+                var file = english ? "locale_en.json" : "locale_ru.json";
+                string json = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, file));
+                locales = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? throw new Exception($"Deserialization of {file} failed...");
             }
             catch (Exception ex)
             {
                 Logger.Log("LocaleLoader", ex.ToString());
-                MessageBox.Show("Error! No locale found!\nОшибка! Не найдена локализация!", "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show((bool)App.Current.Settings.English! ? $"Error! Locale file not found!" : "Ошибка! Не найден файл локализации!", "RestXMLTranslator", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
         }
