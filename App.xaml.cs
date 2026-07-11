@@ -43,16 +43,6 @@ namespace RestXMLTranslator
         public App()
         {
             Settings = new Settings();
-            if (string.IsNullOrEmpty(Settings.Language))
-            {
-                Settings.SelectLanguage();
-            }
-            Locale.Init(Settings.Language == "eng");
-            if (string.IsNullOrWhiteSpace(Settings.GameDataPath))
-            {
-                Settings.SelectGameDataFolder();
-            }
-            new StartupWindow().Show();
         }
 
         public void SwitchTheme()
@@ -78,7 +68,33 @@ namespace RestXMLTranslator
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            ApplyTheme();
+            if (string.IsNullOrEmpty(Settings.Language))
+            {
+                if (!Settings.SelectLanguage())
+                {
+                    Application.Current.Shutdown();
+                    return;
+                }
+            }
+            Locale.Init(Settings.Language == "eng");
+            if (string.IsNullOrWhiteSpace(Settings.GameDataPath))
+            {
+                if (!Settings.SelectGameDataFolder())
+                {
+                    Application.Current.Shutdown();
+                    return;
+                }
+            }
+            try
+            {
+                var wnd = new StartupWindow();
+                wnd.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                throw;
+            }
         }
     }
 }

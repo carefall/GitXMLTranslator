@@ -73,8 +73,10 @@ namespace RestXMLTranslator.Internals.Services
                     App.Current.LocalFiles.DeleteRedundantFiles(files);
                     App.Current.LocalFiles.DeleteChanges(files);
                 });
+                progress?.Report(Locale.Get("downloading_updates"));
                 var updates = await DownloadUpdates(version);
                 if (updates == null) return SyncResult.ServerUnavailable;
+                progress?.Report(Locale.Get("applying_updates"));
                 SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
                 if (result == SyncResult.Success) App.Current.Settings.UpdateVersion(targetVersion);
                 return result;

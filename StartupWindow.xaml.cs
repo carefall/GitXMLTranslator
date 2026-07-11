@@ -14,8 +14,10 @@ namespace RestXMLTranslator
         public StartupWindow()
         {
             InitializeComponent();
+            App.Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
             Title = Locale.Get("window_title", Locale.Get("startup"));
             ContinueButton.Content = Locale.Get("continue");
+            App.Current.ApplyTheme();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

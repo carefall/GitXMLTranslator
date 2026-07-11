@@ -16,14 +16,12 @@ namespace RestXMLTranslator
         {
             IsEnglish = false;
             DialogResult = true;
-            Close();
         }
 
         private void English_Click(object sender, RoutedEventArgs e)
         {
             IsEnglish = true;
             DialogResult = true;
-            Close();
         }
 
     }

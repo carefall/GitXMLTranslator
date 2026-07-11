@@ -70,10 +70,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="#3E3E42" />
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource HighlightedBrush}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="#515151" />
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource HighlightedBrush}" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Border" Property="Background" Value="#007ACC" />
@@ -258,7 +258,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
-                    <Grid Background="{TemplateBinding Background}">
+                    <Grid Height="5" Background="{TemplateBinding Background}">
                         <Track x:Name="PART_Track" IsDirectionReversed="False">
                             <Track.Thumb>
                                 <Thumb>
@@ -268,7 +268,7 @@
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="Thumb">
-                                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" />
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="2" />
                                                     </ControlTemplate>
                                                 </Setter.Value>
                                             </Setter>

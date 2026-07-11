@@ -42,7 +42,7 @@ namespace RestXMLTranslator.Internals.Program
             {
                 Logger.Log("Settings", $"Unhandled exception: {ex}");
                 MessageBox.Show(Locale.Get("gamedata_exception"), Locale.Get("settings"), MessageBoxButton.OK, MessageBoxImage.Error);
-                Application.Current.Shutdown();
+                throw new Exception();
             }
         }
 
@@ -94,51 +94,48 @@ namespace RestXMLTranslator.Internals.Program
             Logger.Log("Settings", $"User selected name: {name}.");
         }
 
-        public void SelectGameDataFolder()
+        public bool SelectGameDataFolder()
         {
             Logger.Log("Settings", "GameData path not found...");
-            var dialog = new OpenFolderDialog
-            {
-                Title = Locale.Get("select_gamedata"),
-                InitialDirectory = @"C:\"
-            };
-            while (dialog.ShowDialog() != true)
-            {
-                var result = MessageBox.Show(Locale.Get("select_gamedata_dialog"), Locale.Get("settings"), MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
-                if (result == MessageBoxResult.No)
-                {
-                    Application.Current.Shutdown();
-                    return;
-                }
-            }
-            GameDataPath = Path.GetFullPath(dialog.FolderName);
             try
             {
+                var result = MessageBox.Show(Locale.Get("select_gamedata_dialog"), Locale.Get("settings"), MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.No)
+                {
+                    return false;
+                }
+                var dialog = new OpenFolderDialog()
+                {
+                    Title = Locale.Get("select_gamedata"),
+                    InitialDirectory = @"C:\"
+                };
+                if (dialog.ShowDialog() != true)
+                {
+                    return false;
+                }
+                GameDataPath = Path.GetFullPath(dialog.FolderName);
                 Directory.CreateDirectory(Path.Combine(GameDataPath, "gamedata", "configs"));
                 Save();
+                Logger.Log("Settings", $"GameData path selected: {GameDataPath}");
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Log("Settings", $"Unhandled exception on gamedata folder creation: {ex}");
                 MessageBox.Show(Locale.Get("gamedata_creation_failed"), Locale.Get("settings"));
-                Application.Current.Shutdown();
+                return false;
             }
-            Logger.Log("Settings", $"GameData path selected: {GameDataPath}");
-            return;
         }
 
-        public void SelectLanguage()
+        public bool SelectLanguage()
         {
             Logger.Log("Settings", "Language not selected...");
             var dialog = new LanguageWindow();
-            while (dialog.ShowDialog() != true)
-            {
-                continue;
-            }
+            if (dialog.ShowDialog() != true) return false;
             Language = dialog.IsEnglish ? "eng" : "rus";
             Save();
             Logger.Log("Settings", $"Language selected: {Language}");
-            return;
+            return true;
         }
 
         private void Save()
