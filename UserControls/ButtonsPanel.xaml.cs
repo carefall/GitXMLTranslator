@@ -27,6 +27,7 @@ namespace RestXMLTranslator.UserControls
             try
             {
                 await Task.Delay(250, _searchCancellation.Token);
+                App.Current.MWindow.TranslationGrid.TGrid.CancelEdit(DataGridEditingUnit.Cell);
                 App.Current.MWindow.TranslationGrid.EntriesView?.Refresh();
             }
             catch (TaskCanceledException) { }
@@ -86,7 +87,7 @@ namespace RestXMLTranslator.UserControls
 
         private void LoadTranslationFromXML(string text, bool file)
         {
-            var translations = XMLHelper.LoadStrings(text).ToDictionary(x => x.Id!);
+            var translations = XMLHelper.LoadStrings(text).GroupBy(x => x.Id).ToDictionary(g => g.Key!, g => g.Last());
             App.Current.MWindow.TranslationGrid.InsertTranslations(translations, file);
         }
 

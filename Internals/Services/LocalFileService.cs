@@ -38,10 +38,10 @@ namespace RestXMLTranslator.Internals.Services
             List<string> localFiles = GetLocalFiles(path);
             if (localFiles.Count == 0) return;
             if (files.Count == 0) return;
+            if (!Directory.Exists(path)) return;
             foreach (string item in localFiles)
             {
                 if (files.ContainsKey(item.Replace(".json", ".xml"))) continue;
-
                 try
                 {
                     File.Delete(Path.Combine(path, item));
