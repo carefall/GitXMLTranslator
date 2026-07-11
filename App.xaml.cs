@@ -5,7 +5,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Windows;
 using System.Xml;
-using Windows.Globalization;
 
 namespace RestXMLTranslator
 {

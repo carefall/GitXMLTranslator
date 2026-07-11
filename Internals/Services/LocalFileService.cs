@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
+
+
 namespace RestXMLTranslator.Internals.Services
 {
     public class LocalFileService
@@ -97,7 +99,7 @@ namespace RestXMLTranslator.Internals.Services
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
                 string tag = entry.Russian ? "rus" : "eng";
                 XElement lang = GetOrCreateLanguage(stringElement, tag);
-                lang.Value = entry.Text!;
+                lang.Value = XMLHelper.EncodeMultiline(entry.Text!);
             }
             using var writer = XmlWriter.Create(path, App.Current.XmlSettings);
             doc.Save(writer);
@@ -172,8 +174,8 @@ namespace RestXMLTranslator.Internals.Services
                 var seq = file.Entries.Where(e => e.Id == change.Id);
                 if (!seq.Any()) continue;
                 StringEntry bro = seq.First();
-                bro.NewEng = change.Eng;
-                bro.NewRu = change.Ru;
+                bro.NewEng = XMLHelper.DecodeMultiline(change.Eng);
+                bro.NewRu = XMLHelper.DecodeMultiline(change.Ru);
                 if (!change.IsApproved) bro.IsApproved = false;
                 if (bro.HasChanges && change.IsApproved) bro.IsApproved = true;
             }
@@ -194,7 +196,7 @@ namespace RestXMLTranslator.Internals.Services
             {
                 if (!entry.HasChanges) continue;
                 if (ignoreApproved && entry.IsApproved) continue;
-                changes.Add(new Change(entry.Id, entry.NewRu, entry.NewEng, allowApprove ? entry.IsApproved : false));
+                changes.Add(new Change(entry.Id, XMLHelper.EncodeMultiline(entry.NewRu), XMLHelper.EncodeMultiline(entry.NewEng), allowApprove ? entry.IsApproved : false));
             }
             if (changes.Count == 0 && File.Exists(filePath))
             {
@@ -226,9 +228,9 @@ namespace RestXMLTranslator.Internals.Services
             {
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
                 XElement rus = GetOrCreateLanguage(stringElement, "rus");
-                rus.Value = entry.IsApproved ? entry.NewRu : entry.Ru;
+                rus.Value = XMLHelper.EncodeMultiline(entry.IsApproved ? entry.NewRu : entry.Ru);
                 XElement eng = GetOrCreateLanguage(stringElement, "eng");
-                eng.Value = entry.IsApproved ? entry.NewEng : entry.Eng;
+                eng.Value = XMLHelper.EncodeMultiline(entry.IsApproved ? entry.NewEng : entry.Eng);
                 entry.IsApproved = false;
             }
             using var writer = XmlWriter.Create(tab.FilePath, App.Current.XmlSettings);

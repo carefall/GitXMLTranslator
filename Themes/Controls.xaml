@@ -106,8 +106,10 @@
         <Setter Property="AlternatingRowBackground" Value="{DynamicResource WindowBackgroundBrush}" />
         <Setter Property="GridLinesVisibility" Value="All" />
         <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource ControlBorderBrush}" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
         <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource ControlBorderBrush}" />
         <Setter Property="HeadersVisibility" Value="Column" />
+        <Setter Property="RowHeaderWidth" Value="0" />
         <Setter Property="CanUserResizeRows" Value="False" />
         <Setter Property="CanUserAddRows" Value="False" />
         <Setter Property="SelectionMode" Value="Extended" />
@@ -244,6 +246,7 @@
         <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="AcceptsReturn" Value="True" />
         <Setter Property="Padding" Value="4,2" />
         <Setter Property="VerticalContentAlignment" Value="Top" />
         <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}" />

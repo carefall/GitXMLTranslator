@@ -8,7 +8,7 @@ namespace RestXMLTranslator.Internals.Program
 {
     public static class XMLHelper
     {
-        private static string DecodeMultiline(string text)
+        public static string DecodeMultiline(string text)
         {
             return text.Replace("\\n", Environment.NewLine);
         }
