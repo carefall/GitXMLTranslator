@@ -2,11 +2,14 @@
 
 <div align="center">
 
-🇺🇸 **English** | <a href="#русский">🇷🇺 Русский</a>
+## 📖 Documentation / Документация
+
+Choose your language / Выберите язык
 
 </div>
 
----
+<details>
+<summary><h2>🇺🇸 English</h2></summary>
 
 # English
 
@@ -228,6 +231,7 @@ Use the button in the upper-right corner to switch between the light and dark th
 # Thank You!
 
 Thank you for contributing to the English translation of **Narodnaya Solyanka OGSR 2026**!
+</details>
 
 ---
 
@@ -236,6 +240,9 @@ Thank you for contributing to the English translation of **Narodnaya Solyanka OG
 > Программа для синхронизированного перевода текстов **Народной Солянки OGSR 2026**.
 
 ---
+
+<details>
+<summary><h2>🇷🇺 Русский</h2></summary>
 
 # Содержание
 
@@ -450,3 +457,4 @@ Thank you for contributing to the English translation of **Narodnaya Solyanka OG
 ---
 
 # Спасибо за помощь в переводе Народной Солянки OGSR 2026!
+</details>
