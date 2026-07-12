@@ -53,8 +53,8 @@ You can choose:
 - the game installation folder;
 - any other folder on your computer.
 
-<img width="383" height="146" alt="image" src="https://github.com/user-attachments/assets/5e260ac1-9046-466f-b549-6fcb4b9b50fd" />
-<img width="697" height="374" alt="image" src="https://github.com/user-attachments/assets/602c6616-a504-4958-acad-165094e0316c" />
+<img width="401" height="146" alt="image" src="https://github.com/user-attachments/assets/1dc9fcc7-df72-4711-947d-b3a6f97e237f" />
+<img width="697" height="374" alt="image" src="https://github.com/user-attachments/assets/3a93396d-edd0-4c8e-887d-fcb2d43fe93d" />
 
 ---
 
