@@ -10,7 +10,6 @@ Choose your language / Выберите язык
 
 <details>
 <summary><h2>🇺🇸 English</h2></summary>
-
 # English
 
 > A tool for collaborative translation of **Narodnaya Solyanka OGSR 2026** with synchronized server-side updates.
@@ -235,14 +234,13 @@ Thank you for contributing to the English translation of **Narodnaya Solyanka OG
 
 ---
 
+<details>
+<summary><h2>🇷🇺 Русский</h2></summary>
 # Русский
 
 > Программа для синхронизированного перевода текстов **Народной Солянки OGSR 2026**.
 
 ---
-
-<details>
-<summary><h2>🇷🇺 Русский</h2></summary>
 
 # Содержание
 
