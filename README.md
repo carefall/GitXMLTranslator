@@ -1,6 +1,6 @@
 # RestXMLTranslator
 
-[🇺🇸 English](README.md) | 🇷🇺 Русский
+🇺🇸 English | [🇷🇺 Русский](README.ru.md)
 
 > A tool for collaborative translation of **Narodnaya Solyanka OGSR 2026** with synchronized server-side updates.
 
