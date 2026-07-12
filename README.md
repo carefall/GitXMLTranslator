@@ -169,7 +169,7 @@ During synchronization, the application:
 
 If a translation has already been changed on the server, it will automatically become **unapproved** and should be reviewed again.
 
-<img width="1149" height="350" alt="image" src="https://github.com/user-attachments/assets/5c0e773b-c66c-432c-8449-94776a22baeb" />
+<img width="1150" height="379" alt="image" src="https://github.com/user-attachments/assets/eb57e07c-95e7-419d-9878-f38b13387659" />
 
 ---
 
@@ -183,7 +183,7 @@ Unapproved translations remain in the application.
 
 After a successful submission, approved translations are applied to the local files, so they are no longer considered modified.
 
-<img width="1153" height="46" alt="image" src="https://github.com/user-attachments/assets/6323bb1e-f9b0-42cc-9365-588bb0cec31e" />
+<img width="1138" height="35" alt="image" src="https://github.com/user-attachments/assets/f71a0f26-a34b-43cd-9da0-929e21c57aeb" />
 
 ---
 
@@ -191,7 +191,7 @@ After a successful submission, approved translations are applied to the local fi
 
 Use the button in the upper-right corner to switch between the light and dark themes.
 
-<img width="289" height="237" alt="image" src="https://github.com/user-attachments/assets/226084e2-aaaf-48bf-8ddf-1ae2f240157b" />
+<img width="369" height="259" alt="image" src="https://github.com/user-attachments/assets/e2f79b37-db0b-4321-bba4-0bd912d8bc2a" />
 
 ---
 
