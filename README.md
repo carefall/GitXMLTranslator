@@ -192,6 +192,7 @@ After a successful submission, approved translations are applied to the local fi
 Use the button in the upper-right corner to switch between the light and dark themes.
 
 <img width="369" height="259" alt="image" src="https://github.com/user-attachments/assets/e2f79b37-db0b-4321-bba4-0bd912d8bc2a" />
+<img width="1384" height="752" alt="image" src="https://github.com/user-attachments/assets/9df0eb1d-6709-4e8e-b2a2-12a8709327ff" />
 
 ---
 
