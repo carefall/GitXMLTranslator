@@ -64,7 +64,7 @@ Enter the nickname that will be associated with your translations.
 
 Click **Continue**.
 
-<img width="386" height="213" alt="image" src="https://github.com/user-attachments/assets/53660349-439a-4ff3-a35f-af26f4a71f31" />
+<img width="386" height="213" alt="image" src="https://github.com/user-attachments/assets/eb55043b-dad0-4951-a8da-ae0282d928c8" />
 
 ---
 
@@ -76,7 +76,7 @@ The application will automatically:
 - create the required local files;
 - open the main translation window.
 
-<img width="386" height="213" alt="image" src="https://github.com/user-attachments/assets/658e2002-b030-4cd0-98b6-653e30d83264" />
+<img width="386" height="213" alt="image" src="https://github.com/user-attachments/assets/36f9e709-f356-4577-8a34-dde535214e87" />
 
 ---
 
@@ -84,7 +84,7 @@ The application will automatically:
 
 After initialization, the main application window will open.
 
-<img width="1384" height="752" alt="image" src="https://github.com/user-attachments/assets/0e1c61a3-3946-4cd6-acb2-4f6a32fa29c7" />
+<img width="1384" height="752" alt="image" src="https://github.com/user-attachments/assets/c1dba051-cf19-4322-803c-178bd4c1b3d5" />
 
 ---
 
