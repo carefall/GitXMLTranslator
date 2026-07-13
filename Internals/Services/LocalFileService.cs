@@ -15,7 +15,8 @@ namespace RestXMLTranslator.Internals.Services
     {
         public void DeleteRedundantFiles(Dictionary<string, int> files)
         {
-            string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs");
+            string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs", "text"); // change path later when smth happens
+            if (!Directory.Exists(path)) return;
             List<string> localFiles = GetLocalFiles(path);
             if (localFiles.Count == 0) return;
             if (files.Count == 0) return;
@@ -37,6 +38,7 @@ namespace RestXMLTranslator.Internals.Services
         public void DeleteChanges(Dictionary<string, int> files)
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes");
+            if (!Directory.Exists(path)) return;
             List<string> localFiles = GetLocalFiles(path);
             if (localFiles.Count == 0) return;
             if (files.Count == 0) return;
@@ -91,8 +93,8 @@ namespace RestXMLTranslator.Internals.Services
 
         public void ApplyHalfEntries(string path, IEnumerable<HalfStringEntry> entries)
         {
-            XDocument doc = new(new XElement("string_table"));
-            if (File.Exists(path)) doc = XDocument.Load(path);
+            XDocument doc = new(new XElement("string_table"), LoadOptions.None);
+            if (File.Exists(path)) doc = XDocument.Load(path, LoadOptions.None);
             var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
             foreach (var entry in entries)
             {
@@ -132,7 +134,7 @@ namespace RestXMLTranslator.Internals.Services
                 return [..Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Select(f =>
                 {
                     var relative = Path.GetRelativePath(folderPath, f);
-                    return relative.Replace("\\", "/");
+                    return "text/" + relative.Replace("\\", "/");
                 })];
             }
             catch (Exception ex)
@@ -144,8 +146,9 @@ namespace RestXMLTranslator.Internals.Services
 
         public async Task<ObservableCollection<FileTab>> ReadLocalFiles()
         {
+            string fullPath = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs", "text");
             string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs");
-            var files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(fullPath, "*", SearchOption.AllDirectories);
             ObservableCollection<FileTab> tabs = [];
             foreach (var file in files)
             {
@@ -216,13 +219,13 @@ namespace RestXMLTranslator.Internals.Services
         public ObservableCollection<StringEntry> Read(string filePath)
         {
             string xml = File.ReadAllText(filePath, Encoding.GetEncoding(1251));
-            return XMLHelper.LoadStrings(xml);
+            return XMLHelper.LoadStrings(xml, false);
         }
 
         public async Task ApplyApprovedChanges(FileTab tab)
         {
             XDocument doc = new(new XElement("string_entry"));
-            if (File.Exists(tab.FilePath)) doc = XDocument.Load(tab.FilePath);
+            if (File.Exists(tab.FilePath)) doc = XDocument.Load(tab.FilePath, LoadOptions.None);
             var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
             foreach (var entry in tab.Entries)
             {

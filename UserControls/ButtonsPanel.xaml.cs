@@ -87,7 +87,7 @@ namespace RestXMLTranslator.UserControls
 
         private void LoadTranslationFromXML(string text, bool file)
         {
-            var translations = XMLHelper.LoadStrings(text).GroupBy(x => x.Id).ToDictionary(g => g.Key!, g => g.Last());
+            var translations = XMLHelper.LoadStrings(text, file).GroupBy(x => x.Id).ToDictionary(g => g.Key!, g => g.Last());
             App.Current.MWindow.TranslationGrid.InsertTranslations(translations, file);
         }
 
@@ -98,9 +98,7 @@ namespace RestXMLTranslator.UserControls
                 Filter = "XML files (*.xml)|*.xml"
             };
             if (dialog.ShowDialog() != true) return;
-            string? xml = App.Current.LocalFiles.LoadFileText(dialog.FileName);
-            if (xml == null) return;
-            LoadTranslationFromXML(xml, true);
+            LoadTranslationFromXML(dialog.FileName, true);
         }
 
         private void FilterChanged(object sender, RoutedEventArgs e)

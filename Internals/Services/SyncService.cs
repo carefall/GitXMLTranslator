@@ -1,6 +1,5 @@
 ﻿using RestXMLTranslator.Internals.Models;
 using RestXMLTranslator.Internals.Program;
-using System.Collections.ObjectModel;
 using System.Text.Json;
 
 namespace RestXMLTranslator.Internals.Services
@@ -101,7 +100,7 @@ namespace RestXMLTranslator.Internals.Services
             var seq = file.Entries.Where(e => e.IsApproved);
             if (seq == null || !seq.Any())
             {
-                return true;
+                return false;
             }
             var request = new UploadRequest
             {

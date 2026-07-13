@@ -48,6 +48,7 @@
 	"enter_name": "Please enter your username to continue.",
 	"welcome": "Welcome, %value%. Synchronization in progress.",
 	"continue": "Continue",
+	"commit_fail": "Uploading changes failed. Please contact the developer.",
 	"update_server_unreachable": "Failed to synchronize data with the server. Please check your internet connection and contact the developer.",
 	"enter_text": "Enter text:",
 	"btn_cancel": "Cancel",
@@ -65,5 +66,7 @@
 	"getting_files": "Checking for updates...",
 	"deleting_files": "Deleting unnecessary files...",
 	"gamedata_creation_failed": "Failed to create the gamedata folder...",
-	"update_first": "Updates were found on the server. Please synchronize before uploading changes."
+	"update_first": "Updates were found on the server. Please synchronize before uploading changes.",
+	"long_text": "Edit long text",
+	"open_file":  "Open in system XML editor"
 }

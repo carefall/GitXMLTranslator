@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace RestXMLTranslator.UserControls
 {
@@ -72,14 +73,15 @@ namespace RestXMLTranslator.UserControls
                 Entries.Add(entry);
                 if (tab.SelectedEntry != "" && tab.SelectedEntry == entry.Id) targetEntry = entry;
             }
-            if (targetEntry != null) {
+            if (targetEntry != null)
+            {
                 TGrid.SelectedItem = targetEntry;
                 TGrid.ScrollIntoView(targetEntry);
             }
 
         }
 
-        private void TextBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             var tb = (TextBox)sender;
             tb.CaretIndex = tb.Text.Length;
@@ -94,40 +96,35 @@ namespace RestXMLTranslator.UserControls
             }
         }
 
-        private void EditLongText(object sender, MouseButtonEventArgs e)
+        private void EditLongText(object sender, RoutedEventArgs e)
         {
-            if (sender is not DataGridCell cell) return;
-            if (cell.DataContext is not StringEntry entry) return;
-            if (entry.IsApproved) return;
-            if (cell.Column is not DataGridTextColumn column || column.Binding is not Binding binding) return;
-            var property = typeof(StringEntry).GetProperty(binding.Path.Path);
-            if (property == null) return;
-            if (!property.CanWrite) return;
+            if (sender is not Button button)
+                return;
+
+            if (button.DataContext is not StringEntry entry)
+                return;
+
+            if (entry.IsApproved)
+                return;
+
+            if (button.Tag is not string propertyName)
+                return;
+
+            var property = typeof(StringEntry).GetProperty(propertyName);
+            if (property == null || !property.CanWrite)
+                return;
+
             var dlg = new TextEditWindow(property.GetValue(entry)?.ToString() ?? "")
             {
                 Owner = Window.GetWindow(this)
             };
+
             if (dlg.ShowDialog() == true)
             {
                 property.SetValue(entry, dlg.ResultText);
             }
-            e.Handled = true;
-        }
 
-        private void DataGridCell_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (sender is DataGridCell cell && !cell.IsEditing && !cell.IsReadOnly)
-            {
-                cell.Focus();
-                if (TGrid.BeginEdit(e))
-                {
-                    e.Handled = true;
-                }
-                TGrid.SelectedItem = cell.DataContext;
-                if (App.Current.MWindow.Files.FilesList.SelectedItem is not FileTab tab) return;
-                if (TGrid.SelectedItem is not StringEntry entry) return;
-                tab.SelectedEntry = entry.Id;
-            }
+            e.Handled = true;
         }
 
         private void Approve_Click(object sender, RoutedEventArgs e)
@@ -159,6 +156,26 @@ namespace RestXMLTranslator.UserControls
             }
             EntriesView?.Refresh();
             MessageBox.Show(Locale.Get(file ? "loaded_from_file" : "clipboard_loaded"), Locale.Get("translation"));
+        }
+
+        private void TextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (sender is not TextBox textBox) return;
+            if (VisualTreeHelper.GetChild(textBox, 0) is not Decorator decorator || decorator.Child is not ScrollViewer scrollViewer) return;
+            bool canScrollUp = scrollViewer.VerticalOffset > 0;
+            bool canScrollDown = scrollViewer.VerticalOffset < scrollViewer.ScrollableHeight;
+            if ((e.Delta > 0 && canScrollUp) || (e.Delta < 0 && canScrollDown)) return;
+            e.Handled = true;
+        }
+
+        public static T? FindParent<T>(DependencyObject? child) where T : DependencyObject
+        {
+            while (child != null)
+            {
+                child = VisualTreeHelper.GetParent(child);
+                if (child is T parent) return parent;
+            }
+            return null;
         }
     }
 }

@@ -35,6 +35,12 @@ namespace RestXMLTranslator
             Indent = true
         };
 
+        public readonly XmlReaderSettings XmlReadSettings = new()
+        {
+            IgnoreWhitespace = true,
+            IgnoreComments = true,
+        };
+
         public LocalFileService LocalFiles { get; } = new();
         public SyncService SyncService { get; } = new();
         public Settings Settings { get; }

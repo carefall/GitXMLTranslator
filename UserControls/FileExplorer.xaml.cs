@@ -1,9 +1,10 @@
 ﻿using RestXMLTranslator.Internals.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows;
 
 namespace RestXMLTranslator.UserControls
 {
@@ -77,6 +78,19 @@ namespace RestXMLTranslator.UserControls
             if (!tab.HasChanges) return false;
             App.Current.LocalFiles.StoreChanges(tab, true);
             return true;
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not MenuItem menuItem) return;
+            if (menuItem.Parent is not ContextMenu contextMenu) return;
+            if (contextMenu.PlacementTarget is not FrameworkElement element) return;
+            if (element.DataContext is not FileTab file) return;
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = file.FilePath,
+                UseShellExecute = true
+            });
         }
     }
 }

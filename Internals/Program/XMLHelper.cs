@@ -1,5 +1,6 @@
 ﻿using RestXMLTranslator.Internals.Models;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
@@ -10,19 +11,24 @@ namespace RestXMLTranslator.Internals.Program
     {
         public static string DecodeMultiline(string text)
         {
+            text = Regex.Replace(text, @"[\r\n]+[ \t]*", "");
             return text.Replace("\\n", Environment.NewLine);
         }
 
         public static string EncodeMultiline(string text)
         {
-            return text.Replace("\r\n", "\n").Replace("\n", "\\n");
+            return text
+                .Replace("\r\n", "\n")
+                .Replace("\n", "\\n");
         }
 
-        public static ObservableCollection<StringEntry> LoadStrings(string xml)
+        public static ObservableCollection<StringEntry> LoadStrings(string xml, bool file)
         {
             try
             {
-                XDocument doc = XDocument.Parse(xml);
+                XDocument? doc = null;
+                if (!file) doc = XDocument.Parse(xml, LoadOptions.None);
+                else doc = XDocument.Load(xml, LoadOptions.None);
                 XElement root = doc.Root ?? throw new Exception("XML has no root element");
                 if (root.Name.LocalName == "string_table")
                 {
@@ -39,7 +45,7 @@ namespace RestXMLTranslator.Internals.Program
                 try
                 {
                     string wrapped = $"<string_table>{xml}</string_table>";
-                    XDocument doc = XDocument.Parse(wrapped);
+                    XDocument doc = XDocument.Parse(wrapped, LoadOptions.None);
                     if (!doc.Root!.Elements("string").Any())
                     {
                         MessageBox.Show(Locale.Get("data_not_xml"), Locale.Get("xml_load_fail"), MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -75,10 +81,10 @@ namespace RestXMLTranslator.Internals.Program
                 string eng = DecodeMultiline(x.Element("eng")?.Value ?? "");
                 return new StringEntry {
                     Id = x.Attribute("id")?.Value ?? "",
-                    Ru = DecodeMultiline(x.Element("rus")?.Value ?? ""),
-                    NewRu = DecodeMultiline(x.Element("rus")?.Value ?? ""),
-                    Eng = DecodeMultiline(x.Element("eng")?.Value ?? ""),
-                    NewEng = DecodeMultiline(x.Element("eng")?.Value ?? "")
+                    Ru = ru,
+                    NewRu = ru,
+                    Eng = eng,
+                    NewEng = eng,
                 };
             })];
         }

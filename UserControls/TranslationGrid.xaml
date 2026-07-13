@@ -73,44 +73,102 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-            <DataGridTextColumn
+            <DataGridTemplateColumn
                 x:Name="NewRuColumn"
                 Width="2*"
-                Binding="{Binding NewRu, UpdateSourceTrigger=PropertyChanged}"
                 Header="{Binding Source={StaticResource Locale}, Path=[new_rus]}"
                 SortMemberPath="NewRu">
-                <DataGridTextColumn.CellStyle>
-                    <Style BasedOn="{StaticResource {x:Type DataGridCell}}" TargetType="DataGridCell">
-                        <Setter Property="Cursor" Value="IBeam" />
-                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown" />
-                        <EventSetter Event="PreviewMouseDoubleClick" Handler="EditLongText" />
-                    </Style>
-                </DataGridTextColumn.CellStyle>
-                <DataGridTextColumn.EditingElementStyle>
-                    <Style BasedOn="{StaticResource DataGridEditingTextBoxStyle}" TargetType="TextBox">
-                        <EventSetter Event="GotFocus" Handler="TextBox_GotFocus" />
-                    </Style>
-                </DataGridTextColumn.EditingElementStyle>
-            </DataGridTextColumn>
-            <DataGridTextColumn
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Padding="2"
+                                VerticalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Focusable="False"
+                                IsHitTestVisible="False"
+                                IsReadOnly="True"
+                                MaxLines="4"
+                                Text="{Binding NewRu}"
+                                TextWrapping="Wrap" />
+                            <Button
+                                Grid.Column="1"
+                                Width="20"
+                                Height="20"
+                                VerticalAlignment="Bottom"
+                                Click="EditLongText"
+                                Content="📝"
+                                Tag="NewRu"
+                                ToolTip="{Binding Source={StaticResource Locale}, Path=[long_text]}"
+                                ToolTipService.InitialShowDelay="100" />
+                        </Grid>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+                <DataGridTemplateColumn.CellEditingTemplate>
+                    <DataTemplate>
+                        <TextBox
+                            AcceptsReturn="True"
+                            PreviewMouseWheel="TextBox_PreviewMouseWheel"
+                            Style="{StaticResource DataGridEditingTextBoxStyle}"
+                            Text="{Binding NewRu, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Auto" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn
                 x:Name="NewEngColumn"
                 Width="2*"
-                Binding="{Binding NewEng, UpdateSourceTrigger=PropertyChanged}"
                 Header="{Binding Source={StaticResource Locale}, Path=[new_eng]}"
                 SortMemberPath="NewEng">
-                <DataGridTextColumn.CellStyle>
-                    <Style BasedOn="{StaticResource {x:Type DataGridCell}}" TargetType="DataGridCell">
-                        <Setter Property="Cursor" Value="IBeam" />
-                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown" />
-                        <EventSetter Event="PreviewMouseDoubleClick" Handler="EditLongText" />
-                    </Style>
-                </DataGridTextColumn.CellStyle>
-                <DataGridTextColumn.EditingElementStyle>
-                    <Style BasedOn="{StaticResource DataGridEditingTextBoxStyle}" TargetType="TextBox">
-                        <EventSetter Event="GotFocus" Handler="TextBox_GotFocus" />
-                    </Style>
-                </DataGridTextColumn.EditingElementStyle>
-            </DataGridTextColumn>
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Padding="2"
+                                VerticalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Focusable="False"
+                                IsHitTestVisible="False"
+                                IsReadOnly="True"
+                                MaxLines="4"
+                                Text="{Binding NewEng}"
+                                TextWrapping="Wrap" />
+                            <Button
+                                Grid.Column="1"
+                                Width="20"
+                                Height="20"
+                                VerticalAlignment="Bottom"
+                                Click="EditLongText"
+                                Content="📝"
+                                Tag="NewEng"
+                                ToolTip="{Binding Source={StaticResource Locale}, Path=[long_text]}"
+                                ToolTipService.InitialShowDelay="100" />
+                        </Grid>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+                <DataGridTemplateColumn.CellEditingTemplate>
+                    <DataTemplate>
+                        <TextBox
+                            AcceptsReturn="True"
+                            PreviewMouseWheel="TextBox_PreviewMouseWheel"
+                            Style="{StaticResource DataGridEditingTextBoxStyle}"
+                            Text="{Binding NewEng, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Auto" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
             <DataGridTemplateColumn
                 x:Name="StatusColumn"
                 Width="120"
@@ -121,7 +179,8 @@
                         <Button
                             x:Name="Approve"
                             Click="Approve_Click"
-                            Style="{StaticResource ApproveButtonStyle}" />
+                            Style="{StaticResource ApproveButtonStyle}"
+                            ToolTipService.InitialShowDelay="100" />
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
