@@ -30,7 +30,7 @@ namespace RestXMLTranslator.Internals.Services
                 int version = JsonSerializer.Deserialize<int>(json, App.Current.JsonOptions);
                 if (version < App.Current.Settings.Version)
                 {
-                    Logger.Log("SyncService", $"Client version is higher: {App.Current.Settings.Version} server {version}");
+                    Logger.Log($"Client version is higher: {App.Current.Settings.Version} server {version}", "SyncService");
                     App.Current.Settings.UpdateVersion(0);
                     return 0;
                 }
@@ -38,7 +38,7 @@ namespace RestXMLTranslator.Internals.Services
             }
             catch (Exception)
             {
-                Logger.Log("SyncService", $"Server is broken. It returned {json} instead of int version");
+                Logger.Log($"Server is broken. It returned {json} instead of int version", "SyncService");
                 return -2;
             }
         }
@@ -82,7 +82,7 @@ namespace RestXMLTranslator.Internals.Services
             }
             catch (Exception ex)
             {
-                Logger.Log("SyncService", $"Unhandled exception: {ex}");
+                Logger.Log($"Unhandled exception: {ex}", "SyncService");
                 return SyncResult.Other;
             }
         }
@@ -113,7 +113,7 @@ namespace RestXMLTranslator.Internals.Services
                     request.Entries.Add(new UploadEntry
                     {
                         Id = entry.Id,
-                        Russian = true,
+                        EditType = 0,
                         Text = entry.NewRu,
                         User = App.Current.Settings.Name
                     });
@@ -123,9 +123,20 @@ namespace RestXMLTranslator.Internals.Services
                     request.Entries.Add(new UploadEntry
                     {
                         Id = entry.Id,
-                        Russian = false,
+                        EditType = 1,
                         Text = entry.NewEng,
-                        User = App.Current.Settings.Name
+                        User = App.Current.Settings.Name,
+
+                    });
+                }
+                if (entry.HasCommentChanges)
+                {
+                    request.Entries.Add(new UploadEntry
+                    {
+                        Id = entry.Id,
+                        EditType = -1,
+                        Text = entry.NewComment,
+                        User = App.Current.Settings.Name,
                     });
                 }
             }

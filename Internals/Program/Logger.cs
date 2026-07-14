@@ -9,7 +9,7 @@ namespace RestXMLTranslator.Internals.Program
         private static readonly string LogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log.txt");
         private static readonly Lock Lock = new();
 
-        public static void Log(string thrower, string message)
+        public static void Log(string message, string thrower = "TEST")
         {
             if (!File.Exists(LogPath)) return;
             try
@@ -31,7 +31,7 @@ namespace RestXMLTranslator.Internals.Program
             try
             {
                 if (!File.Exists(LogPath)) File.Create("log.txt").Close();
-                Log("Logger", "Logging initialized");
+                Log("Logging initialized", "Logger");
             }
             catch (Exception)
             {

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace RestXMLTranslator.Internals.Models
 {
@@ -80,14 +77,41 @@ namespace RestXMLTranslator.Internals.Models
                 OnPropertyChanged();
             }
         }
+        
 
-        public bool HasChanges => HasRuChanges || HasEngChanges;
+        public bool HasChanges => HasRuChanges || HasEngChanges || HasCommentChanges;
 
         public bool HasRuChanges => Ru != NewRu;
 
         public bool HasEngChanges => Eng != NewEng;
 
-        public bool downloadedRu, downloadedEng;
+        public bool HasCommentChanges => Comment != NewComment;
+
+        public bool downloadedRu, downloadedEng, downloadedComment;
+
+        private string _comment = "";
+        public string Comment { get => _comment;
+            set
+            {
+                _comment = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasCommentChanges));
+                OnPropertyChanged(nameof(HasChanges));
+            } 
+        }
+
+        private string _newComment = "";
+        public string NewComment
+        {
+            get => _newComment;
+            set
+            {
+                _newComment = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasCommentChanges));
+                OnPropertyChanged(nameof(HasChanges));
+            }
+        }
 
     }
 }

@@ -30,17 +30,17 @@ namespace RestXMLTranslator.Internals.Program
         {
             try
             {
-                Logger.Log("Settings", "Initializing settings...");
+                Logger.Log("Initializing settings...", "Settings");
                 if (!File.Exists(SettingsPath))
                 {
-                    Logger.Log("Settings", "Settings file not found. Creating...");
+                    Logger.Log("Settings file not found. Creating...", "Settings");
                     Save();
                 }
                 Load();
             }
             catch (Exception ex)
             {
-                Logger.Log("Settings", $"Unhandled exception: {ex}");
+                Logger.Log($"Unhandled exception: {ex}", "Settings");
                 MessageBox.Show(Locale.Get("gamedata_exception"), Locale.Get("settings"), MessageBoxButton.OK, MessageBoxImage.Error);
                 throw new Exception();
             }
@@ -61,14 +61,14 @@ namespace RestXMLTranslator.Internals.Program
             }
             catch (JsonException ex)
             {
-                Logger.Log("Settings", $"Invalid settings JSON: {ex}");
+                Logger.Log($"Invalid settings JSON: {ex}", "Settings");
                 try
                 {
                     File.Delete(SettingsPath);
                 }
                 catch (Exception deleteEx)
                 {
-                    Logger.Log("Settings", $"Unable to delete invalid settings: {deleteEx}");
+                    Logger.Log($"Unable to delete invalid settings: {deleteEx}", "Settings");
                 }
                 GameDataPath = "";
                 Name = "";
@@ -83,7 +83,7 @@ namespace RestXMLTranslator.Internals.Program
         {
             Version = version;
             Save();
-            Logger.Log("Settings", $"Updated version to {version} after installing update...");
+            Logger.Log($"Updated version to {version} after installing update...", "Settings");
         }
 
 
@@ -91,12 +91,12 @@ namespace RestXMLTranslator.Internals.Program
         {
             Name = name;
             Save();
-            Logger.Log("Settings", $"User selected name: {name}.");
+            Logger.Log($"User selected name: {name}.", "Settings");
         }
 
         public bool SelectGameDataFolder()
         {
-            Logger.Log("Settings", "GameData path not found...");
+            Logger.Log("GameData path not found...", "Settings");
             try
             {
                 var result = MessageBox.Show(Locale.Get("select_gamedata_dialog"), Locale.Get("settings"), MessageBoxButton.YesNo);
@@ -116,12 +116,12 @@ namespace RestXMLTranslator.Internals.Program
                 GameDataPath = Path.GetFullPath(dialog.FolderName);
                 Directory.CreateDirectory(Path.Combine(GameDataPath, "gamedata", "configs"));
                 Save();
-                Logger.Log("Settings", $"GameData path selected: {GameDataPath}");
+                Logger.Log($"GameData path selected: {GameDataPath}", "Settings");
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.Log("Settings", $"Unhandled exception on gamedata folder creation: {ex}");
+                Logger.Log($"Unhandled exception on gamedata folder creation: {ex}", "Settings");
                 MessageBox.Show(Locale.Get("gamedata_creation_failed"), Locale.Get("settings"));
                 return false;
             }
@@ -129,12 +129,12 @@ namespace RestXMLTranslator.Internals.Program
 
         public bool SelectLanguage()
         {
-            Logger.Log("Settings", "Language not selected...");
+            Logger.Log("Language not selected...", "Settings");
             var dialog = new LanguageWindow();
             if (dialog.ShowDialog() != true) return false;
             Language = dialog.IsEnglish ? "eng" : "rus";
             Save();
-            Logger.Log("Settings", $"Language selected: {Language}");
+            Logger.Log($"Language selected: {Language}", "Settings");
             return true;
         }
 

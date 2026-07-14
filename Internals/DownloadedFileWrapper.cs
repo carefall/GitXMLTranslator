@@ -1,4 +1,5 @@
 ﻿using RestXMLTranslator.Internals.Models;
+using RestXMLTranslator.Internals.Program;
 
 namespace RestXMLTranslator.Internals
 {
@@ -9,33 +10,48 @@ namespace RestXMLTranslator.Internals
             List<StringEntry> entries = [];
             foreach (var entry in file.HalfEntries)
             {
+                Logger.Log(entry.Id.ToString());
+                Logger.Log(entry.EditType.ToString());
+                bool ru = entry.EditType == 0;
+                bool eng = entry.EditType == 1;
+                bool com = entry.EditType == -1;
+                string text = entry.Text ?? "";
                 var existing = entries.FirstOrDefault(e => e.Id == entry.Id);
                 if (existing == null)
                 {
                     entries.Add(new StringEntry()
                     {
                         Id = entry.Id!,
-                        Ru = entry.Russian ? entry.Text! : "",
-                        NewRu = entry.Russian ? entry.Text! : "",
-                        Eng = entry.Russian ? "" : entry.Text!,
-                        NewEng = entry.Russian ? "" : entry.Text!,
-                        downloadedRu = entry.Russian,
-                        downloadedEng = !entry.Russian
+                        downloadedRu = ru,
+                        downloadedEng = eng,
+                        downloadedComment = com,
+                        Ru = ru? text : "",
+                        NewRu = ru ? text : "",
+                        Eng = eng ? text : "",
+                        NewEng = eng ? text : "",
+                        Comment = com ? text : "",
+                        NewComment = com ? text : "" 
                     });
 
                     continue;
                 }
-                if (entry.Russian)
+                if (ru)
                 {
                     existing.downloadedRu = true;
-                    existing.Ru = entry.Text!;
-                    existing.NewRu = entry.Text!;
+                    existing.Ru = text;
+                    existing.NewRu = text;
+                }
+                else if (eng)
+                {
+                    existing.downloadedEng = true;
+                    existing.Eng = text;
+                    existing.NewEng = text;
                 }
                 else
                 {
-                    existing.downloadedEng = true;
-                    existing.Eng = entry.Text!;
-                    existing.NewEng = entry.Text!;
+                    existing.downloadedComment = true;
+                    existing.Comment = text;
+                    existing.Comment = text;
                 }
             }
             file.Entries = entries;

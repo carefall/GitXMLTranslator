@@ -68,5 +68,7 @@
 	"gamedata_creation_failed": "Failed to create the gamedata folder...",
 	"update_first": "Updates were found on the server. Please synchronize before uploading changes.",
 	"long_text": "Edit long text",
-	"open_file":  "Open in system XML editor"
+	"open_file": "Open in system XML editor",
+	"new_comment": "New comment",
+	"comment": "Comment"
 }

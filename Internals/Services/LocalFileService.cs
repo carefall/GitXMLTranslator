@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -29,7 +28,7 @@ namespace RestXMLTranslator.Internals.Services
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log("LocalFileService", $"Unhandle exception on file {item} deletion: {ex}");
+                    Logger.Log($"Unhandle exception on file {item} deletion: {ex}", "LocalFileService");
                     continue;
                 }
             }
@@ -48,27 +47,13 @@ namespace RestXMLTranslator.Internals.Services
                 if (files.ContainsKey(item.Replace(".json", ".xml"))) continue;
                 try
                 {
-                    File.Delete(Path.Combine(path, item));
+                    File.Delete(Path.Combine(path, item.Replace("text\\", "")));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log("LocalFileService", $"Unhandle exception on file {item} deletion: {ex}");
+                    Logger.Log($"Unhandle exception on file {item} deletion: {ex}", "LocalFileService");
                     continue;
                 }
-            }
-        }
-
-        public string? LoadFileText(string file)
-        {
-            try
-            {
-                return File.ReadAllText(file, Encoding.GetEncoding(1251));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(Locale.Get("parse_file_fail"), Locale.Get("file_load_error"));
-                Logger.Log("Translator-FileRead", $"Unhandled exception: {ex}");
-                return null;
             }
         }
 
@@ -93,15 +78,24 @@ namespace RestXMLTranslator.Internals.Services
 
         public void ApplyHalfEntries(string path, IEnumerable<HalfStringEntry> entries)
         {
-            XDocument doc = new(new XElement("string_table"), LoadOptions.None);
-            if (File.Exists(path)) doc = XDocument.Load(path, LoadOptions.None);
+            XDocument doc = new(new XElement("string_table"));
+            if (File.Exists(path)) doc = XDocument.Load(path);
             var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
             foreach (var entry in entries)
             {
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
-                string tag = entry.Russian ? "rus" : "eng";
+                if (entry.EditType == -1)
+                {
+                    if (!string.IsNullOrWhiteSpace(entry.Text))
+                    {
+                        if (stringElement.PreviousNode is XComment oldComment) oldComment.Remove();
+                        stringElement.AddBeforeSelf(new XComment(entry.Text));
+                    }
+                    continue;
+                }
+                string tag = entry.EditType == 0 ? "rus" : "eng";
                 XElement lang = GetOrCreateLanguage(stringElement, tag);
-                lang.Value = XMLHelper.EncodeMultiline(entry.Text!);
+                lang.Value = XMLHelper.EncodeMultilineForXML(entry.Text!);
             }
             using var writer = XmlWriter.Create(path, App.Current.XmlSettings);
             doc.Save(writer);
@@ -121,7 +115,7 @@ namespace RestXMLTranslator.Internals.Services
             }
             catch (Exception ex)
             {
-                Logger.Log("LocalFileService", $"Unhandled exception during changes applying: {ex}");
+                Logger.Log($"Unhandled exception during changes applying: {ex}", "LocalFileService");
                 return SyncResult.Other;
             }
             return SyncResult.Success;
@@ -139,7 +133,7 @@ namespace RestXMLTranslator.Internals.Services
             }
             catch (Exception ex)
             {
-                Logger.Log("LocalFileService", $"Unhandled exception during local files collection: {ex}");
+                Logger.Log($"Unhandled exception during local files collection: {ex}", "LocalFileService");
                 return [];
             }
         }
@@ -199,7 +193,7 @@ namespace RestXMLTranslator.Internals.Services
             {
                 if (!entry.HasChanges) continue;
                 if (ignoreApproved && entry.IsApproved) continue;
-                changes.Add(new Change(entry.Id, XMLHelper.EncodeMultiline(entry.NewRu), XMLHelper.EncodeMultiline(entry.NewEng), allowApprove ? entry.IsApproved : false));
+                changes.Add(new Change(entry.Id, XMLHelper.EncodeMultilineForJSON(entry.NewRu), XMLHelper.EncodeMultilineForJSON(entry.NewEng), allowApprove ? entry.IsApproved : false, entry.NewComment));
             }
             if (changes.Count == 0 && File.Exists(filePath))
             {
@@ -230,10 +224,15 @@ namespace RestXMLTranslator.Internals.Services
             foreach (var entry in tab.Entries)
             {
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
+                if (!string.IsNullOrWhiteSpace(entry.NewComment))
+                {
+                    if (stringElement.PreviousNode is XComment oldComment) oldComment.Remove();
+                    stringElement.AddBeforeSelf(new XComment(entry.NewComment));
+                }
                 XElement rus = GetOrCreateLanguage(stringElement, "rus");
-                rus.Value = XMLHelper.EncodeMultiline(entry.IsApproved ? entry.NewRu : entry.Ru);
+                rus.Value = XMLHelper.EncodeMultilineForXML(entry.IsApproved ? entry.NewRu : entry.Ru);
                 XElement eng = GetOrCreateLanguage(stringElement, "eng");
-                eng.Value = XMLHelper.EncodeMultiline(entry.IsApproved ? entry.NewEng : entry.Eng);
+                eng.Value = XMLHelper.EncodeMultilineForXML(entry.IsApproved ? entry.NewEng : entry.Eng);
                 entry.IsApproved = false;
             }
             using var writer = XmlWriter.Create(tab.FilePath, App.Current.XmlSettings);

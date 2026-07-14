@@ -53,27 +53,6 @@
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
             <DataGridTemplateColumn
-                x:Name="EngColumn"
-                Width="2*"
-                Header="{Binding Source={StaticResource Locale}, Path=[eng]}"
-                SortMemberPath="Eng">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <TextBox
-                            Padding="2,0"
-                            VerticalContentAlignment="Center"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Cursor="Arrow"
-                            IsReadOnly="True"
-                            MaxLines="4"
-                            Text="{Binding Eng}"
-                            TextWrapping="Wrap"
-                            VerticalScrollBarVisibility="Hidden" />
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTemplateColumn
                 x:Name="NewRuColumn"
                 Width="2*"
                 Header="{Binding Source={StaticResource Locale}, Path=[new_rus]}"
@@ -122,6 +101,27 @@
                 </DataGridTemplateColumn.CellEditingTemplate>
             </DataGridTemplateColumn>
             <DataGridTemplateColumn
+                x:Name="EngColumn"
+                Width="2*"
+                Header="{Binding Source={StaticResource Locale}, Path=[eng]}"
+                SortMemberPath="Eng">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <TextBox
+                            Padding="2,0"
+                            VerticalContentAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Arrow"
+                            IsReadOnly="True"
+                            MaxLines="4"
+                            Text="{Binding Eng}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Hidden" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn
                 x:Name="NewEngColumn"
                 Width="2*"
                 Header="{Binding Source={StaticResource Locale}, Path=[new_eng]}"
@@ -164,6 +164,75 @@
                             PreviewMouseWheel="TextBox_PreviewMouseWheel"
                             Style="{StaticResource DataGridEditingTextBoxStyle}"
                             Text="{Binding NewEng, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Auto" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellEditingTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn
+                x:Name="CommentColumn"
+                Width="2*"
+                Header="{Binding Source={StaticResource Locale}, Path=[comment]}"
+                SortMemberPath="Comment">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <TextBox
+                            Padding="2,0"
+                            VerticalContentAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Arrow"
+                            IsReadOnly="True"
+                            MaxLines="4"
+                            Text="{Binding Comment}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Hidden" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn
+                x:Name="NewCommentColumn"
+                Width="2*"
+                Header="{Binding Source={StaticResource Locale}, Path=[new_comment]}"
+                SortMemberPath="NewEng">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Padding="2"
+                                VerticalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Focusable="False"
+                                IsHitTestVisible="False"
+                                IsReadOnly="True"
+                                MaxLines="4"
+                                Text="{Binding NewComment}"
+                                TextWrapping="Wrap" />
+                            <Button
+                                Grid.Column="1"
+                                Width="20"
+                                Height="20"
+                                VerticalAlignment="Bottom"
+                                Click="EditLongText"
+                                Content="📝"
+                                Tag="NewEng"
+                                ToolTip="{Binding Source={StaticResource Locale}, Path=[long_text]}"
+                                ToolTipService.InitialShowDelay="100" />
+                        </Grid>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+                <DataGridTemplateColumn.CellEditingTemplate>
+                    <DataTemplate>
+                        <TextBox
+                            AcceptsReturn="True"
+                            PreviewMouseWheel="TextBox_PreviewMouseWheel"
+                            Style="{StaticResource DataGridEditingTextBoxStyle}"
+                            Text="{Binding NewComment, UpdateSourceTrigger=PropertyChanged}"
                             TextWrapping="Wrap"
                             VerticalScrollBarVisibility="Auto" />
                     </DataTemplate>

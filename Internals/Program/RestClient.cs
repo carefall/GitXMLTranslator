@@ -10,7 +10,7 @@ namespace RestXMLTranslator.Internals.Program
             Timeout = TimeSpan.FromSeconds(60)
         };
 
-        private const string BaseUrl = "https://nukerfall.pythonanywhere.com/translator/";
+        private const string BaseUrl = "http://127.0.0.1:8000/translator/";
 
         public static async Task<string> GetDataAsync(string endpoint)
         {
@@ -23,7 +23,7 @@ namespace RestXMLTranslator.Internals.Program
             }
             catch (Exception ex)
             {
-                Logger.Log("RestClient-Get", $"Unable to sync data with server. Exception: {ex}");
+                Logger.Log($"Unable to sync data with server. Exception: {ex}", "RestClient-Get");
                 return "";
             }
         }
@@ -40,7 +40,7 @@ namespace RestXMLTranslator.Internals.Program
             }
             catch (Exception ex)
             {
-                Logger.Log("RestClient-Post", $"Unable to sync data with server. Exception: {ex}");
+                Logger.Log($"Unable to sync data with server. Exception: {ex}", "RestClient-Post");
                 return "";
             }
         }

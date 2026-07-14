@@ -32,7 +32,7 @@ namespace RestXMLTranslator
         {
             var settings = App.Current.Settings;
             SyncText.Visibility = Visibility.Visible;
-            Logger.Log("Startup", "Performing update check...");
+            Logger.Log("Performing update check...", "Startup");
             SyncResult result = await App.Current.SyncService.StartupSync(settings.GameDataPath, settings.Version, _progress);
             if (result != SyncResult.Success && result != SyncResult.ServerUnavailable)
             {
@@ -43,12 +43,12 @@ namespace RestXMLTranslator
             if (result == SyncResult.ServerUnavailable)
             {
                 MessageBox.Show(Locale.Get("update_server_unreachable"), Locale.Get("sync"));
-                Logger.Log("Startup", "Update check failed due to service unavailability. Moving to MainWindow");
+                Logger.Log("Update check failed due to service unavailability. Moving to MainWindow", "Startup");
                 new MainWindow(false).Show();
             }
             else
             {
-                Logger.Log("Startup", "Successful update check. Moving to MainWindow");
+                Logger.Log("Successful update check. Moving to MainWindow", "Startup");
                 new MainWindow(true).Show();
             }
             Close();

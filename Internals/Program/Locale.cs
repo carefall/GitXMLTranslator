@@ -19,7 +19,7 @@ namespace RestXMLTranslator.Internals.Program
             }
             catch (Exception ex)
             {
-                Logger.Log("LocaleLoader", ex.ToString());
+                Logger.Log(ex.ToString(), "LocaleLoader");
                 MessageBox.Show(english ? $"Error! Locale file not found!" : "Ошибка! Не найден файл локализации!", "RestXMLTranslator", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }

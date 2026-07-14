@@ -15,11 +15,14 @@ namespace RestXMLTranslator.Internals.Program
             return text.Replace("\\n", Environment.NewLine);
         }
 
-        public static string EncodeMultiline(string text)
+        public static string EncodeMultilineForXML(string text)
         {
-            return text
-                .Replace("\r\n", "\n")
-                .Replace("\n", "\\n");
+            return text.Replace("\r\n", "\n").Replace("\n", "\n\\n");
+        }
+
+        public static string EncodeMultilineForJSON(string text)
+        {
+            return text.Replace("\r\n", "\n").Replace("\n", "\\n");
         }
 
         public static ObservableCollection<StringEntry> LoadStrings(string xml, bool file)
@@ -27,7 +30,7 @@ namespace RestXMLTranslator.Internals.Program
             try
             {
                 XDocument? doc = null;
-                if (!file) doc = XDocument.Parse(xml, LoadOptions.None);
+                if (!file) doc = XDocument.Parse(xml, LoadOptions.PreserveWhitespace);
                 else doc = XDocument.Load(xml, LoadOptions.None);
                 XElement root = doc.Root ?? throw new Exception("XML has no root element");
                 if (root.Name.LocalName == "string_table")
@@ -56,19 +59,19 @@ namespace RestXMLTranslator.Internals.Program
                 catch (XmlException ex)
                 {
                     MessageBox.Show(Locale.Get("xml_corrupt"), Locale.Get("xml_load_fail"), MessageBoxButton.OK, MessageBoxImage.Error);
-                    Logger.Log("XMLParser", $"XML Exception during parsing wrapped XML: {ex}");
+                    Logger.Log($"XML Exception during parsing wrapped XML: {ex}", "XMLParser");
                     return [];
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log("XMLParser", $"Unhandled exception: {ex}");
+                    Logger.Log($"Unhandled exception: {ex}", "XMLParser");
                     MessageBox.Show(Locale.Get("xml_fail_two"), Locale.Get("xml_load_fail"), MessageBoxButton.OK, MessageBoxImage.Error);
                     return [];
                 }
             }
             catch (Exception ex)
             {
-                Logger.Log("XMLParser-Read", $"Unhandled exception: {ex}");
+                Logger.Log($"Unhandled exception: {ex}", "XMLParser-Read");
                 MessageBox.Show(Locale.Get("xml_fail_one"), Locale.Get("xml_load_fail"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return [];
             }
@@ -79,14 +82,46 @@ namespace RestXMLTranslator.Internals.Program
             return [..strings.Select(x => {
                 string ru = DecodeMultiline(x.Element("rus")?.Value ?? "");
                 string eng = DecodeMultiline(x.Element("eng")?.Value ?? "");
+                string comment = FindComment(x);
                 return new StringEntry {
                     Id = x.Attribute("id")?.Value ?? "",
                     Ru = ru,
                     NewRu = ru,
                     Eng = eng,
                     NewEng = eng,
+                    Comment = comment,
+                    NewComment = comment
                 };
             })];
+        }
+
+        private static string FindComment(XElement element)
+        {
+            var inside = element.Nodes().OfType<XComment>().FirstOrDefault();
+            if (inside != null) return inside.Value.Trim();
+            for (XNode? node = element.PreviousNode; node != null; node = node.PreviousNode)
+            {
+                switch (node)
+                {
+                    case XComment comment:
+                        return comment.Value.Trim();
+                    case XElement:
+                        goto SearchNext;
+                }
+            }
+        SearchNext:
+            for (XNode? node = element.NextNode; node != null; node = node.NextNode)
+            {
+                switch (node)
+                {
+                    case XComment comment:
+                        return comment.Value.Trim();
+
+                    case XElement:
+                        return "";
+                }
+            }
+            return "";
         }
     }
 }

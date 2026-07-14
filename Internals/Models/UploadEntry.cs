@@ -5,7 +5,7 @@
     {
         public string Id { get; set; } = string.Empty;
 
-        public bool Russian { get; set; }
+        public int EditType { get; set; }
 
         public string Text { get; set; } = string.Empty;
 

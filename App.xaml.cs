@@ -32,13 +32,14 @@ namespace RestXMLTranslator
         public readonly XmlWriterSettings XmlSettings = new()
         {
             Encoding = Encoding.GetEncoding(1251),
-            Indent = true
+            Indent = true,
+            NewLineHandling = NewLineHandling.Entitize
         };
 
         public readonly XmlReaderSettings XmlReadSettings = new()
         {
             IgnoreWhitespace = true,
-            IgnoreComments = true,
+            IgnoreComments = false,
         };
 
         public LocalFileService LocalFiles { get; } = new();
