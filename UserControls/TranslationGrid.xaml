@@ -12,6 +12,7 @@
         x:Name="TGrid"
         AutoGenerateColumns="False"
         BeginningEdit="TGrid_BeginningEdit"
+        CanUserDeleteRows="False"
         CanUserSortColumns="True"
         ItemsSource="{Binding Entries, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <DataGrid.Columns>
@@ -194,7 +195,7 @@
                 x:Name="NewCommentColumn"
                 Width="2*"
                 Header="{Binding Source={StaticResource Locale}, Path=[new_comment]}"
-                SortMemberPath="NewEng">
+                SortMemberPath="NewComment">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
                         <Grid>
@@ -220,7 +221,7 @@
                                 VerticalAlignment="Bottom"
                                 Click="EditLongText"
                                 Content="📝"
-                                Tag="NewEng"
+                                Tag="NewComment"
                                 ToolTip="{Binding Source={StaticResource Locale}, Path=[long_text]}"
                                 ToolTipService.InitialShowDelay="100" />
                         </Grid>

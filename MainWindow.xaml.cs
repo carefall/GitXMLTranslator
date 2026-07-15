@@ -55,6 +55,13 @@ namespace RestXMLTranslator
             }
             await Files.SaveAll(false);
             SyncResult syncResult = await App.Current.SyncService.EditorSync();
+            if (syncResult == SyncResult.Inactive)
+            {
+                WindowBlocker.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("get_not_allowed"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                Title = Locale.Get("window_title", Locale.Get("not_connected"));
+                return;
+            }
             if (syncResult == SyncResult.ServerUnavailable)
             {
                 WindowBlocker.Visibility = Visibility.Hidden;
@@ -103,12 +110,18 @@ namespace RestXMLTranslator
                 Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 return;
             }
-            if (!await App.Current.SyncService.Commit(tab))
+            switch (await App.Current.SyncService.Commit(tab))
             {
-                WindowBlocker.Visibility = Visibility.Hidden;
-                MessageBox.Show(Locale.Get("commit_fail"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Error);
-                Title = Locale.Get("window_title", Locale.Get("not_connected"));
-                return;
+                case SyncResult.Inactive:
+                    WindowBlocker.Visibility = Visibility.Hidden;
+                    MessageBox.Show(Locale.Get("post_not_allowed"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                    Title = Locale.Get("window_title", Locale.Get("not_connected"));
+                    return;
+                case SyncResult.ServerUnavailable:
+                    WindowBlocker.Visibility = Visibility.Hidden;
+                    MessageBox.Show(Locale.Get("commit_fail"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    Title = Locale.Get("window_title", Locale.Get("not_connected"));
+                    return;
             }
             App.Current.LocalFiles.StoreChanges(tab);
             await App.Current.LocalFiles.ApplyApprovedChanges(tab);

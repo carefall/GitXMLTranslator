@@ -28,8 +28,12 @@ namespace RestXMLTranslator.UserControls
         private bool FilterFile(object obj)
         {
             if (obj is not FileTab file) return false;
+            if (HideChanged.IsChecked == true && file.HasChanges) return false;
+            if (HideUnchanged.IsChecked == true && !file.HasChanges) return false;
+            if (HideFinished.IsChecked == true && file.Finished) return false;
+            if (HideUnfinished.IsChecked == true && !file.Finished) return false;
             if (string.IsNullOrWhiteSpace(_searchText)) return true;
-            return file.RelativePath.Contains(_searchText, StringComparison.OrdinalIgnoreCase);
+            return file.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase);
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -44,7 +48,7 @@ namespace RestXMLTranslator.UserControls
             _searchCancellation = new CancellationTokenSource();
             try
             {
-                await Task.Delay(250, _searchCancellation.Token);
+                await Task.Delay(150, _searchCancellation.Token);
                 FilesView?.Refresh();
             }
             catch (TaskCanceledException) { }
@@ -58,7 +62,7 @@ namespace RestXMLTranslator.UserControls
 
         public async Task<bool> SaveAll(bool allowApprove)
         {
-            if (!Files.Where(f => f.HasChanges).Any()) return false;
+            if (!Files.Any(f => f.HasChanges)) return false;
             App.Current.MWindow.WindowBlocker.Visibility = Visibility.Visible;
             await Task.Run(() =>
             {
@@ -91,6 +95,11 @@ namespace RestXMLTranslator.UserControls
                 FileName = file.FilePath,
                 UseShellExecute = true
             });
+        }
+
+        private void FileFilterChanged(object sender, RoutedEventArgs e)
+        {
+            FilesView?.Refresh();
         }
     }
 }

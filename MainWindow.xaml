@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:RestXMLTranslator"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:usercontrols="clr-namespace:RestXMLTranslator.UserControls"
-    Width="1398.4"
+    Width="1449"
     MinWidth="400"
     MinHeight="250"
     Background="{DynamicResource WindowBackgroundBrush}"
@@ -18,9 +18,9 @@
     <Window.Resources />
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="2" />
-            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <usercontrols:WindowBlocker
             x:Name="WindowBlocker"

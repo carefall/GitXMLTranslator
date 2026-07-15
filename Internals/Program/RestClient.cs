@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Text;
 
 namespace RestXMLTranslator.Internals.Program
@@ -10,7 +11,7 @@ namespace RestXMLTranslator.Internals.Program
             Timeout = TimeSpan.FromSeconds(60)
         };
 
-        private const string BaseUrl = "https://nukerfall.pythonanywhere.com/translator/";
+        private const string BaseUrl = "https://nukerfall.pythonanywhere.com/translator/"; //"https://nukerfall.pythonanywhere.com/translator/"; "http://127.0.0.1:8000/translator/";
 
         public static async Task<string> GetDataAsync(string endpoint)
         {
@@ -18,6 +19,7 @@ namespace RestXMLTranslator.Internals.Program
             {
                 HttpResponseMessage response = await Client.GetAsync($"{BaseUrl}{endpoint}");
                 string json = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == HttpStatusCode.MethodNotAllowed) return "0";
                 if (!response.IsSuccessStatusCode) throw new Exception(json);
                 return json;
             }
@@ -35,6 +37,7 @@ namespace RestXMLTranslator.Internals.Program
                 using var content = new StringContent(body, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await Client.PostAsync($"{BaseUrl}{endpoint}", content);
                 string json = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == HttpStatusCode.MethodNotAllowed) return "0";
                 if (!response.IsSuccessStatusCode) throw new Exception(json);
                 return json;
             }

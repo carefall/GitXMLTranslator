@@ -24,6 +24,7 @@ namespace RestXMLTranslator.Internals.Services
                 if (files.ContainsKey(item)) continue;
                 try
                 {
+                    App.Current.Settings.TryDeleteStatus(item);
                     File.Delete(Path.Combine(path, item));
                 }
                 catch (Exception ex)
@@ -42,7 +43,7 @@ namespace RestXMLTranslator.Internals.Services
             localFiles = localFiles.ConvertAll(file =>
             {
                 int index = file.IndexOf("text/");
-                return index >= 0? file.Remove(index, "text/".Length) : file;
+                return index >= 0 ? file.Remove(index, "text/".Length) : file;
             });
             if (localFiles.Count == 0) return;
             if (files.Count == 0) return;
@@ -81,19 +82,19 @@ namespace RestXMLTranslator.Internals.Services
             return element;
         }
 
-        public void ApplyHalfEntries(string path, IEnumerable<HalfStringEntry> entries)
+        public void ApplyHalfEntries(string path, DownloadedFile file)
         {
             XDocument doc = new(new XElement("string_table"));
             if (File.Exists(path)) doc = XDocument.Load(path);
             var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
-            foreach (var entry in entries)
+            foreach (var entry in file.HalfEntries)
             {
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
                 if (entry.EditType == -1)
                 {
+                    if (stringElement.PreviousNode is XComment oldComment) oldComment.Remove();
                     if (!string.IsNullOrWhiteSpace(entry.Text))
                     {
-                        if (stringElement.PreviousNode is XComment oldComment) oldComment.Remove();
                         stringElement.AddBeforeSelf(new XComment(entry.Text));
                     }
                     continue;
@@ -104,6 +105,7 @@ namespace RestXMLTranslator.Internals.Services
             }
             using var writer = XmlWriter.Create(path, App.Current.XmlSettings);
             doc.Save(writer);
+            App.Current.Settings.SetOrAddFileStatus(file.Path, file.Finished);
         }
 
         public async Task<SyncResult> ApplyUpdates(List<DownloadedFile> files)
@@ -115,7 +117,7 @@ namespace RestXMLTranslator.Internals.Services
                     string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs", file.Path);
                     string? dir = Path.GetDirectoryName(path);
                     Directory.CreateDirectory(dir!);
-                    ApplyHalfEntries(path, file.HalfEntries);
+                    ApplyHalfEntries(path, file);
                 }
             }
             catch (Exception ex)
@@ -168,18 +170,26 @@ namespace RestXMLTranslator.Internals.Services
         {
             string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes", file.RelativePath.Replace(".xml", ".json"));
             if (!File.Exists(filePath)) return;
-            string json = File.ReadAllText(filePath, Encoding.GetEncoding(1251));
-            List<Change>? changes = JsonSerializer.Deserialize<List<Change>>(json, App.Current.JsonOptions);
-            changes ??= [];
-            foreach (Change change in changes)
+            try
             {
-                var seq = file.Entries.Where(e => e.Id == change.Id);
-                if (!seq.Any()) continue;
-                StringEntry bro = seq.First();
-                bro.NewEng = XMLHelper.DecodeMultiline(change.Eng);
-                bro.NewRu = XMLHelper.DecodeMultiline(change.Ru);
-                if (!change.IsApproved) bro.IsApproved = false;
-                if (bro.HasChanges && change.IsApproved) bro.IsApproved = true;
+                string json = File.ReadAllText(filePath, Encoding.GetEncoding(1251));
+                List<Change>? changes = JsonSerializer.Deserialize<List<Change>>(json, App.Current.JsonOptions);
+                changes ??= [];
+                foreach (Change change in changes)
+                {
+                    var seq = file.Entries.Where(e => e.Id == change.Id);
+                    if (!seq.Any()) continue;
+                    StringEntry bro = seq.First();
+                    bro.NewEng = XMLHelper.DecodeMultiline(change.Eng ?? "");
+                    bro.NewRu = XMLHelper.DecodeMultiline(change.Ru ?? "");
+                    bro.NewComment = XMLHelper.DecodeMultiline(change.Comment ?? "");
+                    if (!change.IsApproved) bro.IsApproved = false;
+                    if (bro.HasChanges && change.IsApproved) bro.IsApproved = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Unhandled exception during changes load: {ex}", "LocalFileService");
             }
         }
 
@@ -229,9 +239,9 @@ namespace RestXMLTranslator.Internals.Services
             foreach (var entry in tab.Entries)
             {
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
+                if (stringElement.PreviousNode is XComment oldComment) oldComment.Remove();
                 if (!string.IsNullOrWhiteSpace(entry.NewComment))
                 {
-                    if (stringElement.PreviousNode is XComment oldComment) oldComment.Remove();
                     stringElement.AddBeforeSelf(new XComment(entry.NewComment));
                 }
                 XElement rus = GetOrCreateLanguage(stringElement, "rus");

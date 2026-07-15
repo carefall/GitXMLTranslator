@@ -34,9 +34,9 @@ namespace RestXMLTranslator
             SyncText.Visibility = Visibility.Visible;
             Logger.Log("Performing update check...", "Startup");
             SyncResult result = await App.Current.SyncService.StartupSync(settings.GameDataPath, settings.Version, _progress);
-            if (result != SyncResult.Success && result != SyncResult.ServerUnavailable)
+            if (result == SyncResult.ClientVersionHigher || result == SyncResult.Other)
             {
-                MessageBox.Show(Locale.Get(result == SyncResult.ClientVersionHigher ? "sync_version_higher" : "sync_fail"), Locale.Get("sync"));
+                MessageBox.Show(Locale.Get("sync_error"), Locale.Get("sync"));
                 Application.Current.Shutdown();
                 return;
             }
@@ -44,6 +44,12 @@ namespace RestXMLTranslator
             {
                 MessageBox.Show(Locale.Get("update_server_unreachable"), Locale.Get("sync"));
                 Logger.Log("Update check failed due to service unavailability. Moving to MainWindow", "Startup");
+                new MainWindow(false).Show();
+            }
+            else if (result == SyncResult.Inactive)
+            {
+                MessageBox.Show(Locale.Get("get_not_allowed"), Locale.Get("sync"));
+                Logger.Log("Server is under maintenance. Get operations are not available.", "Startup");
                 new MainWindow(false).Show();
             }
             else

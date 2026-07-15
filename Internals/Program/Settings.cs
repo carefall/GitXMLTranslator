@@ -16,6 +16,8 @@ namespace RestXMLTranslator.Internals.Program
 
         public string Language { get; private set; } = "";
 
+        public Dictionary<string, bool> Statuses { get; private set; } = [];
+
         private readonly string SettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
 
         private readonly JsonSerializerOptions options = new()
@@ -58,6 +60,7 @@ namespace RestXMLTranslator.Internals.Program
                 Version = root.TryGetProperty("version", out var version) ? version.GetInt32() : 0;
                 LightTheme = !root.TryGetProperty("light-theme", out var lightTheme) || lightTheme.GetBoolean();
                 Language = root.TryGetProperty("language", out var language) ? language.GetString() ?? "" : "";
+                Statuses = root.TryGetProperty("statuses", out var statuses) ? statuses.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetBoolean()) : [];
             }
             catch (JsonException ex)
             {
@@ -75,6 +78,7 @@ namespace RestXMLTranslator.Internals.Program
                 Version = 0;
                 LightTheme = true;
                 Language = "";
+                Statuses = [];
                 Save();
             }
         }
@@ -146,7 +150,8 @@ namespace RestXMLTranslator.Internals.Program
                 ["name"] = Name,
                 ["version"] = Version,
                 ["light-theme"] = LightTheme,
-                ["language"] = Language
+                ["language"] = Language,
+                ["statuses"] = Statuses
             };
             string json = JsonSerializer.Serialize(config, options);
             File.WriteAllText(SettingsPath, json);
@@ -155,6 +160,23 @@ namespace RestXMLTranslator.Internals.Program
         public void SwitchTheme()
         {
             LightTheme = !LightTheme;
+            Save();
+        }
+
+        public bool GetFileStatus(string file)
+        {
+            return Statuses.GetValueOrDefault(file, false);
+        }
+
+        public void TryDeleteStatus(string file)
+        {
+            Statuses.Remove(file);
+            Save();
+        }
+
+        public void SetOrAddFileStatus(string file, bool status)
+        {
+            Statuses[file] = status;
             Save();
         }
     }

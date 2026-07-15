@@ -8,6 +8,9 @@
     <Compile Update="StartupWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="TranslationSelectWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="UserControls\ButtonsPanel.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

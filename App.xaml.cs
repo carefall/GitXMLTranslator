@@ -33,7 +33,8 @@ namespace RestXMLTranslator
         {
             Encoding = Encoding.GetEncoding(1251),
             Indent = true,
-            NewLineHandling = NewLineHandling.Entitize
+            NewLineHandling = NewLineHandling.Replace,
+            NewLineChars = "\r\n"
         };
 
         public readonly XmlReaderSettings XmlReadSettings = new()
@@ -82,7 +83,11 @@ namespace RestXMLTranslator
                     return;
                 }
             }
-            Locale.Init(Settings.Language == "eng");
+            if (!Locale.Init(Settings.Language == "eng"))
+            {
+                Application.Current.Shutdown();
+                return;
+            }
             if (string.IsNullOrWhiteSpace(Settings.GameDataPath))
             {
                 if (!Settings.SelectGameDataFolder())

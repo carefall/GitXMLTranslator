@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace RestXMLTranslator.Internals.Models
 {
-    public class FileTab
+    public class FileTab : INotifyPropertyChanged
     {
 
         public string SelectedEntry { get; set; } = "";
@@ -15,6 +17,24 @@ namespace RestXMLTranslator.Internals.Models
 
         public string Tip { get; set; } = "";
 
+        private bool finished = false;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public bool Finished {
+            get => finished;
+            set
+            {
+                finished = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<StringEntry> Entries { get; set; } = [];
 
         public FileTab(string path, string relativePath)
@@ -23,6 +43,7 @@ namespace RestXMLTranslator.Internals.Models
             RelativePath = relativePath;
             Tip = RelativePath;
             Name = Path.GetFileName(path);
+            Finished = App.Current.Settings.GetFileStatus(relativePath);
         }
 
         public void Read()

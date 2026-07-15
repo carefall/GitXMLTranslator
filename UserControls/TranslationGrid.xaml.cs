@@ -141,17 +141,27 @@ namespace RestXMLTranslator.UserControls
         public void InsertTranslations(Dictionary<string, StringEntry> translations, bool file)
         {
             if (translations.Count == 0) return;
+            var window = new TranslationSelectWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
+            if (window.ShowDialog() != true)
+                return;
+            var type = window.Result;
             foreach (var item in Entries)
             {
-                if (translations.TryGetValue(item.Id!, out var tr) &&
-                    !string.IsNullOrWhiteSpace(tr.Eng))
+                if (!translations.TryGetValue(item.Id!, out var tr)) continue;
+                if (!string.IsNullOrWhiteSpace(tr.Eng) && (type == ImportType.English || type == ImportType.All || type == ImportType.Localization))
                 {
                     item.NewEng = tr.Eng;
                 }
-                if (translations.TryGetValue(item.Id, out var tr2) &&
-                    !string.IsNullOrWhiteSpace(tr2.Ru))
+                if (!string.IsNullOrWhiteSpace(tr.Ru) && (type == ImportType.Russian || type == ImportType.All || type == ImportType.Localization))
                 {
-                    item.NewRu = tr2.Ru;
+                    item.NewRu = tr.Ru;
+                }
+                if (!string.IsNullOrWhiteSpace(tr.Comment) && (type == ImportType.Comments || type == ImportType.All))
+                {
+                    item.NewComment = tr.Comment;
                 }
             }
             EntriesView?.Refresh();

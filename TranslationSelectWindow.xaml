@@ -1,0 +1,42 @@
+﻿<Window
+    x:Class="RestXMLTranslator.TranslationSelectWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:RestXMLTranslator"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="{Binding Source={StaticResource Locale}, Path=[import]}"
+    Width="200"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
+    <Grid>
+        <StackPanel Margin="20">
+            <TextBlock Text="{Binding Source={StaticResource Locale}, Path=[import_what]}" TextAlignment="Center" />
+            <Button
+                Margin="0,5"
+                Click="Russian_Click"
+                Content="{Binding Source={StaticResource Locale}, Path=[import_russian]}" />
+
+            <Button
+                Margin="0,5"
+                Click="English_Click"
+                Content="{Binding Source={StaticResource Locale}, Path=[import_english]}" />
+
+            <Button
+                Margin="0,5"
+                Click="Localization_Click"
+                Content="{Binding Source={StaticResource Locale}, Path=[import_localization]}" />
+
+            <Button
+                Margin="0,5"
+                Click="Comments_Click"
+                Content="{Binding Source={StaticResource Locale}, Path=[import_comments]}" />
+
+            <Button
+                Margin="0,5"
+                Click="All_Click"
+                Content="{Binding Source={StaticResource Locale}, Path=[import_all]}" />
+        </StackPanel>
+    </Grid>
+</Window>

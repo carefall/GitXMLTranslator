@@ -106,18 +106,6 @@ namespace RestXMLTranslator.Internals.Program
                     case XComment comment:
                         return comment.Value.Trim();
                     case XElement:
-                        goto SearchNext;
-                }
-            }
-        SearchNext:
-            for (XNode? node = element.NextNode; node != null; node = node.NextNode)
-            {
-                switch (node)
-                {
-                    case XComment comment:
-                        return comment.Value.Trim();
-
-                    case XElement:
                         return "";
                 }
             }

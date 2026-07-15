@@ -5,6 +5,7 @@
         Success,
         ServerUnavailable,
         ClientVersionHigher,
+        Inactive,
         Other
     }
 }

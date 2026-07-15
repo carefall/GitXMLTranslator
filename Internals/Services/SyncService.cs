@@ -1,16 +1,18 @@
 ﻿using RestXMLTranslator.Internals.Models;
 using RestXMLTranslator.Internals.Program;
 using System.Text.Json;
+using System.Windows;
 
 namespace RestXMLTranslator.Internals.Services
 {
     public class SyncService
     {
-        public async Task<Dictionary<string, int>?> GetServerFiles()
+        public async Task<(Dictionary<string, int>?, bool)> GetServerFiles()
         {
             string json = await RestClient.GetDataAsync("files");
-            if (string.IsNullOrEmpty(json)) return null;
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(json, App.Current.JsonOptions);
+            if (string.IsNullOrEmpty(json)) return (null, true);
+            if (json == "0") return (null, false);
+            return (JsonSerializer.Deserialize<Dictionary<string, int>>(json, App.Current.JsonOptions), true);
         }
 
 
@@ -46,10 +48,11 @@ namespace RestXMLTranslator.Internals.Services
         public async Task<SyncResult> EditorSync()
         {
             int version = App.Current.Settings.Version;
-            var serverFiles = await GetServerFiles();
-            if (serverFiles == null) return SyncResult.ServerUnavailable;
-            App.Current.LocalFiles.DeleteRedundantFiles(serverFiles);
-            App.Current.LocalFiles.DeleteChanges(serverFiles);
+            (var files, bool allowed) = await GetServerFiles();
+            if (!allowed) return SyncResult.Inactive;
+            if (files == null) return SyncResult.ServerUnavailable;
+            App.Current.LocalFiles.DeleteRedundantFiles(files);
+            App.Current.LocalFiles.DeleteChanges(files);
             var updates = await DownloadUpdates(version);
             if (updates == null) return SyncResult.ServerUnavailable;
             SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
@@ -61,7 +64,8 @@ namespace RestXMLTranslator.Internals.Services
             try
             {
                 progress?.Report(Locale.Get("getting_files"));
-                var files = await GetServerFiles();
+                (var files, bool allowed) = await GetServerFiles();
+                if (!allowed) return SyncResult.Inactive;
                 if (files == null) return SyncResult.ServerUnavailable;
                 if (files.Count == 0) return SyncResult.Success;
                 int targetVersion = files.Values.Max();
@@ -91,16 +95,25 @@ namespace RestXMLTranslator.Internals.Services
         {
             var files = await DownloadUpdatedFiles(version);
             if (files == null) return null;
-            DownloadedFileWrapper.FillEntries(files);
+            foreach (var file in files)
+            {
+                var latest = file.HalfEntries.MaxBy(x => x.Uid);
+                if (file.Path.Contains("mapspots_radar"))
+                {
+                    Logger.Log(latest!.Uid.ToString());
+                    Logger.Log(latest!.Finished.ToString());
+                }
+                file.Finished = latest!.Finished;
+            }
             return files;
         }
 
-        public async Task<bool> Commit(FileTab file)
+        public async Task<SyncResult> Commit(FileTab file)
         {
             var seq = file.Entries.Where(e => e.IsApproved);
             if (seq == null || !seq.Any())
             {
-                return false;
+                return SyncResult.Other;
             }
             var request = new UploadRequest
             {
@@ -126,7 +139,6 @@ namespace RestXMLTranslator.Internals.Services
                         EditType = 1,
                         Text = entry.NewEng,
                         User = App.Current.Settings.Name,
-
                     });
                 }
                 if (entry.HasCommentChanges)
@@ -142,10 +154,12 @@ namespace RestXMLTranslator.Internals.Services
             }
             string body = JsonSerializer.Serialize(request, App.Current.JsonOptions);
             string json = await RestClient.PostDataAsync($"upload?filepath={file.RelativePath.Replace("\\", "/")}", body);
-            if (json == "") return false;
+            if (json == "0") return SyncResult.Inactive;
+            if (json == "") return SyncResult.ServerUnavailable;
             int version = JsonSerializer.Deserialize<int>(json, App.Current.JsonOptions);
+            App.Current.Settings.SetOrAddFileStatus(file.RelativePath, false);
             App.Current.Settings.UpdateVersion(version);
-            return true;
+            return SyncResult.Success;
         }
     }
 }

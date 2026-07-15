@@ -10,5 +10,7 @@
 
         public int EditType { get; set; }
 
+        public bool Finished { get; set; }
+
     }
 }

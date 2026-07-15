@@ -4,12 +4,12 @@
     {
         public string Id { get; set; } = Id;
 
-        public string Ru { get; set; } = Ru;
+        public string? Ru { get; set; } = Ru;
 
-        public string Eng { get; set; } = Eng;
+        public string? Eng { get; set; } = Eng;
 
         public bool IsApproved { get; set; } = IsApproved;
 
-        public string Comment { get; set; } = Comment;
+        public string? Comment { get; set; } = Comment;
     }
 }

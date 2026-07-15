@@ -26,7 +26,7 @@ namespace RestXMLTranslator.UserControls
             _searchCancellation = new CancellationTokenSource();
             try
             {
-                await Task.Delay(250, _searchCancellation.Token);
+                await Task.Delay(150, _searchCancellation.Token);
                 App.Current.MWindow.TranslationGrid.TGrid.CancelEdit(DataGridEditingUnit.Cell);
                 App.Current.MWindow.TranslationGrid.EntriesView?.Refresh();
             }

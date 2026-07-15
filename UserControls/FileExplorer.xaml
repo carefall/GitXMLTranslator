@@ -11,6 +11,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid
@@ -54,9 +55,59 @@
                 </TextBlock.Style>
             </TextBlock>
         </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ToggleButton
+                x:Name="HideChanged"
+                Grid.Row="0"
+                Grid.Column="0"
+                Height="30"
+                Margin="5,5,5,0"
+                Padding="5,0,5,0"
+                Checked="FileFilterChanged"
+                Content="{Binding Source={StaticResource Locale}, Path=[hide_changed]}"
+                Unchecked="FileFilterChanged" />
+            <ToggleButton
+                x:Name="HideUnchanged"
+                Grid.Row="0"
+                Grid.Column="1"
+                Height="30"
+                Margin="5,5,5,0"
+                Padding="5,0,5,0"
+                Checked="FileFilterChanged"
+                Content="{Binding Source={StaticResource Locale}, Path=[hide_unchanged]}"
+                Unchecked="FileFilterChanged" />
+            <ToggleButton
+                x:Name="HideFinished"
+                Grid.Row="1"
+                Grid.Column="0"
+                Height="30"
+                Margin="5,5,5,5"
+                Padding="5,0,5,0"
+                Checked="FileFilterChanged"
+                Content="{Binding Source={StaticResource Locale}, Path=[hide_finished]}"
+                Unchecked="FileFilterChanged" />
+            <ToggleButton
+                x:Name="HideUnfinished"
+                Grid.Row="1"
+                Grid.Column="1"
+                Height="30"
+                Margin="5,5,5,5"
+                Padding="5,0,5,0"
+                Checked="FileFilterChanged"
+                Content="{Binding Source={StaticResource Locale}, Path=[hide_unfinished]}"
+                Unchecked="FileFilterChanged" />
+        </Grid>
         <ListBox
             x:Name="FilesList"
-            Grid.Row="1"
+            Grid.Row="2"
             Margin="5"
             ItemsSource="{Binding Files}"
             ScrollViewer.HorizontalScrollBarVisibility="Visible"
@@ -74,11 +125,25 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="📄" />
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="📄" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Finished}" Value="True">
+                                            <Setter Property="Text" Value="✔" />
+                                            <Setter Property="Foreground" Value="LimeGreen" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock
                             Grid.Column="1"
-                            Text="{Binding RelativePath}"
-                            TextTrimming="CharacterEllipsis" />
+                            Text="{Binding Name}"
+                            TextTrimming="CharacterEllipsis"
+                            ToolTip="{Binding RelativePath}"
+                            ToolTipService.InitialShowDelay="100" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
