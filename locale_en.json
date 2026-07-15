@@ -20,6 +20,7 @@
 	"btn_load_file": "Load Translation from File",
 	"btn_load_buffer": "Load Translation from Clipboard",
 
+    "btn_cancel": "Отмена",
 	"btn_approve": "✔ Approve",
 	"btn_decline": "✖ Unapprove",
 	"tip_approve": "Approve translation",
