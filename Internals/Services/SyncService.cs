@@ -1,7 +1,6 @@
 ﻿using RestXMLTranslator.Internals.Models;
 using RestXMLTranslator.Internals.Program;
 using System.Text.Json;
-using System.Windows;
 
 namespace RestXMLTranslator.Internals.Services
 {
@@ -98,11 +97,6 @@ namespace RestXMLTranslator.Internals.Services
             foreach (var file in files)
             {
                 var latest = file.HalfEntries.MaxBy(x => x.Uid);
-                if (file.Path.Contains("mapspots_radar"))
-                {
-                    Logger.Log(latest!.Uid.ToString());
-                    Logger.Log(latest!.Finished.ToString());
-                }
                 file.Finished = latest!.Finished;
             }
             return files;
@@ -127,7 +121,7 @@ namespace RestXMLTranslator.Internals.Services
                     {
                         Id = entry.Id,
                         EditType = 0,
-                        Text = entry.NewRu,
+                        Text = XMLHelper.EncodeMultilineForServer(entry.NewRu),
                         User = App.Current.Settings.Name
                     });
                 }
@@ -137,7 +131,7 @@ namespace RestXMLTranslator.Internals.Services
                     {
                         Id = entry.Id,
                         EditType = 1,
-                        Text = entry.NewEng,
+                        Text = XMLHelper.EncodeMultilineForServer(entry.NewEng),
                         User = App.Current.Settings.Name,
                     });
                 }

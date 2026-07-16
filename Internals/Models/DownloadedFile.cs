@@ -6,6 +6,8 @@
 
         public List<HalfStringEntry> HalfEntries { get; set; } = [];
 
+        public List<string> Ids { get; set; }
+
         public bool Finished { get; set; }
     }
 }

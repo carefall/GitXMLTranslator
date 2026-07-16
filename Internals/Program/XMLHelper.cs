@@ -17,12 +17,23 @@ namespace RestXMLTranslator.Internals.Program
 
         public static string EncodeMultilineForXML(string text)
         {
-            return text.Replace("\r\n", "\n").Replace("\n", "\n\\n");
+            return text.Replace("\\n", "\n\\n");
         }
 
         public static string EncodeMultilineForJSON(string text)
         {
             return text.Replace("\r\n", "\n").Replace("\n", "\\n");
+        }
+
+        public static string EncodeMultilineForServer(string text)
+        {
+            return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\\n");
+        }
+
+        public static string EncodeMultilineFromInput(string text)
+        {
+            text = text.Replace("\r\n", "\n").Replace("\r", "\n");
+            return text.Replace("\n", "\n\\n");
         }
 
         public static ObservableCollection<StringEntry> LoadStrings(string xml, bool file)

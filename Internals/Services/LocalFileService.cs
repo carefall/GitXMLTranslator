@@ -87,6 +87,17 @@ namespace RestXMLTranslator.Internals.Services
             XDocument doc = new(new XElement("string_table"));
             if (File.Exists(path)) doc = XDocument.Load(path);
             var index = doc.Root!.Elements("string").ToDictionary(x => (string)x.Attribute("id")!);
+            HashSet<string> validIds = new(file.Ids);
+            foreach (var pair in index.ToList())
+            {
+                if (validIds.Contains(pair.Key))
+                    continue;
+                XElement element = pair.Value;
+                if (element.PreviousNode is XComment comment)
+                    comment.Remove();
+                element.Remove();
+                index.Remove(pair.Key);
+            }
             foreach (var entry in file.HalfEntries)
             {
                 XElement stringElement = GetOrCreateString(doc.Root!, index, entry.Id!);
@@ -245,9 +256,9 @@ namespace RestXMLTranslator.Internals.Services
                     stringElement.AddBeforeSelf(new XComment(entry.NewComment));
                 }
                 XElement rus = GetOrCreateLanguage(stringElement, "rus");
-                rus.Value = XMLHelper.EncodeMultilineForXML(entry.IsApproved ? entry.NewRu : entry.Ru);
+                rus.Value = XMLHelper.EncodeMultilineFromInput(entry.IsApproved ? entry.NewRu : entry.Ru);
                 XElement eng = GetOrCreateLanguage(stringElement, "eng");
-                eng.Value = XMLHelper.EncodeMultilineForXML(entry.IsApproved ? entry.NewEng : entry.Eng);
+                eng.Value = XMLHelper.EncodeMultilineFromInput(entry.IsApproved ? entry.NewEng : entry.Eng);
                 entry.IsApproved = false;
             }
             using var writer = XmlWriter.Create(tab.FilePath, App.Current.XmlSettings);
