@@ -13,6 +13,7 @@
         AutoGenerateColumns="False"
         BeginningEdit="TGrid_BeginningEdit"
         CanUserDeleteRows="False"
+        CanUserReorderColumns="True"
         CanUserSortColumns="True"
         ItemsSource="{Binding Entries, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <DataGrid.Columns>
