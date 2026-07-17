@@ -104,6 +104,7 @@ After initialization, the main application window will open.
 Contains:
 
 - the localization file list;
+- file filters;
 - file search.
 
 ---
@@ -126,13 +127,19 @@ Contains:
 
 ## New Russian
 
-Use this column to correct mistakes and typos in the original Russian localization.
+Use this column to correct mistakes and typos in the original russian localization.
 
 ---
 
 ## New English
 
-Use this column to create a new English translation or edit an existing one.
+Use this column to create a new english translation or edit an existing one.
+
+---
+
+## New Comment
+
+Use this column to create a new comment or edit an existing one.
 
 ---
 
@@ -175,10 +182,9 @@ It is recommended to synchronize your changes before submitting them.
 During synchronization, the application:
 
 - downloads changes made by other translators;
-- uploads your local modifications;
 - refreshes the translation list.
 
-If a translation has already been changed on the server, it will automatically become **unapproved** and should be reviewed again.
+After sync, strings will automatically become **unapproved** and should be approved again.
 
 <img width="1150" height="379" alt="image" src="https://github.com/user-attachments/assets/eb57e07c-95e7-419d-9878-f38b13387659" />
 
@@ -203,7 +209,7 @@ After a successful submission, approved translations are applied to the local fi
 Use the button in the upper-right corner to switch between the light and dark themes.
 
 <img width="369" height="259" alt="image" src="https://github.com/user-attachments/assets/e2f79b37-db0b-4321-bba4-0bd912d8bc2a" />
-<img width="1384" height="752" alt="image" src="https://github.com/user-attachments/assets/9df0eb1d-6709-4e8e-b2a2-12a8709327ff" />
+<img width="1409" height="752" alt="image" src="https://github.com/user-attachments/assets/01b1cc2b-3eb0-4f97-8142-f263ccc3bda2" />
 
 ---
 
@@ -212,10 +218,9 @@ Use the button in the upper-right corner to switch between the light and dark th
 1. Select a file.
 2. Correct the Russian text if necessary.
 3. Add or edit the English translation.
-4. Approve the completed translations.
-5. Synchronize with the server.
-6. Review approved translations again if new changes were received.
-7. Submit your approved translations.
+4. Synchronize with the server.
+5. Approve the completed translations.
+6. Submit your approved translations.
 
 ---
 
@@ -330,6 +335,7 @@ Use the button in the upper-right corner to switch between the light and dark th
 Содержит:
 
 - список файлов;
+- фильтры по файлам;
 - поиск по файлам.
 
 ---
@@ -360,6 +366,11 @@ Use the button in the upper-right corner to switch between the light and dark th
 
 Используется для создания или редактирования английского перевода.
 
+---
+
+## Новый комментарий
+
+Используется для создания или редактирования комментариев (<!---->).
 
 ---
 
@@ -405,7 +416,7 @@ Use the button in the upper-right corner to switch between the light and dark th
 - загружает ваши локальные изменения;
 - обновляет список переводов.
 
-Если какая-либо строка уже была изменена на сервере, она автоматически станет **неутверждённой** и потребует повторной проверки.
+После синхронизации строки автоматически станут **неутверждёнными** и потребуют повторного утверждения.
 
 <img width="1149" height="350" alt="image" src="https://github.com/user-attachments/assets/5c0e773b-c66c-432c-8449-94776a22baeb" />
 
@@ -430,7 +441,7 @@ Use the button in the upper-right corner to switch between the light and dark th
 В правом верхнем углу находится кнопка переключения между светлой и тёмной темой.
 
 <img width="289" height="237" alt="image" src="https://github.com/user-attachments/assets/226084e2-aaaf-48bf-8ddf-1ae2f240157b" />
-<img width="1384" height="752" alt="image" src="https://github.com/user-attachments/assets/0c8451d3-1421-4700-9ad1-5c6d75eb91bc" />
+<img width="1409" height="752" alt="image" src="https://github.com/user-attachments/assets/4918e418-aa85-40dc-8ce8-841b3657e816" />
 
 ---
 
@@ -439,10 +450,9 @@ Use the button in the upper-right corner to switch between the light and dark th
 1. Выберите файл.
 2. Исправьте русский текст (при необходимости).
 3. Добавьте или исправьте английский перевод.
-4. Утвердите готовые строки.
-5. Выполните синхронизацию.
-6. Повторно проверьте утверждённые строки при наличии изменений.
-7. Отправьте изменения на сервер.
+4. Выполните синхронизацию.
+5. Утвердите готовые строки.
+6. Отправьте изменения на сервер.
 
 ---
 
@@ -451,7 +461,6 @@ Use the button in the upper-right corner to switch between the light and dark th
 - Синхронизируйтесь как можно чаще.
 - Перед отправкой ещё раз просматривайте утверждённые строки.
 - При отсутствии Интернета регулярно сохраняйте изменения локально.
-- После синхронизации некоторые строки могут снова стать неутверждёнными — это нормально, если другой переводчик успел изменить их раньше.
 
 ---
 
