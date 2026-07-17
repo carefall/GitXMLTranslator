@@ -69,6 +69,13 @@ namespace RestXMLTranslator
                 Title = Locale.Get("window_title", Locale.Get("not_connected"));
                 return;
             }
+            if (syncResult == SyncResult.OldApp)
+            {
+                WindowBlocker.Visibility = Visibility.Hidden;
+                MessageBox.Show(Locale.Get("old_app_get"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Error);
+                Title = Locale.Get("window_title", Locale.Get("not_connected"));
+                return;
+            }
             if (syncResult == SyncResult.Other)
             {
                 WindowBlocker.Visibility = Visibility.Hidden;
@@ -112,6 +119,11 @@ namespace RestXMLTranslator
             }
             switch (await App.Current.SyncService.Commit(tab))
             {
+                case SyncResult.OldApp:
+                    WindowBlocker.Visibility = Visibility.Hidden;
+                    MessageBox.Show(Locale.Get("old_app_post"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                    Title = Locale.Get("window_title", Locale.Get("not_connected"));
+                    return;
                 case SyncResult.Inactive:
                     WindowBlocker.Visibility = Visibility.Hidden;
                     MessageBox.Show(Locale.Get("post_not_allowed"), Locale.Get("sync"), MessageBoxButton.OK, MessageBoxImage.Warning);

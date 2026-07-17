@@ -40,7 +40,13 @@ namespace RestXMLTranslator
                 Application.Current.Shutdown();
                 return;
             }
-            if (result == SyncResult.ServerUnavailable)
+            if (result == SyncResult.OldApp)
+            {
+                MessageBox.Show(Locale.Get("old_app_get"), Locale.Get("sync"));
+                Logger.Log("Update check failed due to unsupported app version. Moving to MainWindow", "Startup");
+                new MainWindow(false).Show();
+            }
+            else if (result == SyncResult.ServerUnavailable)
             {
                 MessageBox.Show(Locale.Get("update_server_unreachable"), Locale.Get("sync"));
                 Logger.Log("Update check failed due to service unavailability. Moving to MainWindow", "Startup");

@@ -104,6 +104,8 @@
 	"commit_fail": "Failed to upload changes. Please contact the developer.",
 	"get_not_allowed": "Server is under maintenance. Get operations are not allowed. Contact the developer.",
 	"post_not_allowed": "Server is under maintenance. Post operations are not allowed. Contact the developer.",
+	"old_app_post": "Your app version is not supported. Please, update. Unable to upload changes.",
+	"old_app_get": "Your app version is not supported. Please, update. Unable to download changes.",
 
 	"folder_fail": "Failed to create the path %value%. Please contact the developer and attach the log.txt file to your report.",
 	"gamedata_exception": "An unknown error occurred while processing the gamedata folder. Please contact the developer and attach the log.txt file to your report.",

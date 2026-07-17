@@ -6,6 +6,7 @@
         ServerUnavailable,
         ClientVersionHigher,
         Inactive,
-        Other
+        Other,
+        OldApp
     }
 }

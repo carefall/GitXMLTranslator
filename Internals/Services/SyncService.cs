@@ -19,6 +19,7 @@ namespace RestXMLTranslator.Internals.Services
         {
             string json = await RestClient.GetDataAsync($"download?version={version}");
             if (string.IsNullOrEmpty(json)) return null;
+            if (json == "1") return ([]);
             return await Task.Run(() => JsonSerializer.Deserialize<List<DownloadedFile>>(json, App.Current.JsonOptions));
         }
 
@@ -54,6 +55,7 @@ namespace RestXMLTranslator.Internals.Services
             App.Current.LocalFiles.DeleteChanges(files);
             var updates = await DownloadUpdates(version);
             if (updates == null) return SyncResult.ServerUnavailable;
+            if (updates.Count == 0) return SyncResult.OldApp;
             SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
             return result;
         }
@@ -78,6 +80,7 @@ namespace RestXMLTranslator.Internals.Services
                 progress?.Report(Locale.Get("downloading_updates"));
                 var updates = await DownloadUpdates(version);
                 if (updates == null) return SyncResult.ServerUnavailable;
+                if (updates.Count == 0) return SyncResult.OldApp;
                 progress?.Report(Locale.Get("applying_updates"));
                 SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
                 if (result == SyncResult.Success) App.Current.Settings.UpdateVersion(targetVersion);
@@ -149,6 +152,7 @@ namespace RestXMLTranslator.Internals.Services
             string body = JsonSerializer.Serialize(request, App.Current.JsonOptions);
             string json = await RestClient.PostDataAsync($"upload?filepath={file.RelativePath.Replace("\\", "/")}", body);
             if (json == "0") return SyncResult.Inactive;
+            if (json == "1") return SyncResult.OldApp;
             if (json == "") return SyncResult.ServerUnavailable;
             int version = JsonSerializer.Deserialize<int>(json, App.Current.JsonOptions);
             App.Current.Settings.SetOrAddFileStatus(file.RelativePath, false);

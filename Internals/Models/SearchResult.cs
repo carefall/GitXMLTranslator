@@ -10,8 +10,5 @@
 
         public string Preview { get; set; } = "";
 
-        public StringEntry Entry { get; set; } = null!;
-
-        public string Type { get; set; } = "";
     }
 }
