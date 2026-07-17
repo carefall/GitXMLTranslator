@@ -171,6 +171,11 @@ namespace RestXMLTranslator
                 Buttons.SearchBox.SelectAll();
                 e.Handled = true;
             }
+            if (e.Key == Key.F && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                e.Handled = true;
+                OpenAdvancedSearch();
+            }
             if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 if (!Buttons.SaveFile.IsEnabled) return;
@@ -199,6 +204,31 @@ namespace RestXMLTranslator
             {
                 TranslationGrid.TGrid.UnselectAll();
             }
+        }
+
+        public void OpenAdvancedSearch()
+        {
+            new SearchWindow()
+            {
+                Owner = this
+            }.Show();
+        }
+
+        public void NavigateTo(FileTab file, string entry)
+        {
+            Files.SearchBox.Text = "";
+            Buttons.SearchBox.Text = "";
+            Files.HideChanged.IsChecked = false;
+            Files.HideFinished.IsChecked = false;
+            Files.HideUnchanged.IsChecked = false;
+            Files.HideUnfinished.IsChecked = false;
+            Buttons.HideApproved.IsChecked = false;
+            Buttons.HideChanged.IsChecked = false;
+            Buttons.HideUnchanged.IsChecked = false;
+            Files.FilesView?.Refresh();
+            TranslationGrid.EntriesView?.Refresh();
+            file.SelectedEntry = entry;
+            Files.FilesList.SelectedItem = file;
         }
 
     }

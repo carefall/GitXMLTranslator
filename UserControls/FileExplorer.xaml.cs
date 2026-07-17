@@ -84,7 +84,7 @@ namespace RestXMLTranslator.UserControls
             return true;
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_Click_Text(object sender, RoutedEventArgs e)
         {
             if (sender is not MenuItem menuItem) return;
             if (menuItem.Parent is not ContextMenu contextMenu) return;
@@ -100,6 +100,20 @@ namespace RestXMLTranslator.UserControls
         private void FileFilterChanged(object sender, RoutedEventArgs e)
         {
             FilesView?.Refresh();
+        }
+
+        private void MenuItem_Click_File(object sender, RoutedEventArgs e)
+        {
+            if (sender is not MenuItem menuItem) return;
+            if (menuItem.Parent is not ContextMenu contextMenu) return;
+            if (contextMenu.PlacementTarget is not FrameworkElement element) return;
+            if (element.DataContext is not FileTab file) return;
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = $"/select,\"{file.FilePath}\"",
+                UseShellExecute = true
+            });
         }
     }
 }

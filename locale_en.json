@@ -20,11 +20,14 @@
 	"btn_load_file": "Load Translation from File",
 	"btn_load_buffer": "Load Translation from Clipboard",
 
-    "btn_cancel": "Отмена",
+	"btn_cancel": "Отмена",
 	"btn_approve": "✔ Approve",
 	"btn_decline": "✖ Unapprove",
 	"tip_approve": "Approve translation",
 	"tip_decline": "Remove approval",
+	"btn_search": "Search",
+	"file_name": "File",
+	"entry_match": "Match",
 
 	"btn_hide_approved": "Hide Approved",
 	"btn_hide_changed": "Hide Changed",
@@ -33,6 +36,7 @@
 	"hide_unchanged": "Hide unchanged",
 	"hide_finished": "Hide finished",
 	"hide_unfinished": "Hide unfinished",
+	"btn_adv_search": "Advanced search",
 
 	"translation": "Translation",
 	"translation_status": "Status",
@@ -49,6 +53,7 @@
 
 	"long_text": "Edit long text",
 	"open_file": "Open in system XML editor",
+	"open_explorer": "Show in explorer",
 
 	"import": "Data import",
 	"import_what": "What to import from file?",
@@ -97,6 +102,8 @@
 	"sync_error": "Synchronization failed. The application will now close.",
 	"sync_fail": "An unknown error occurred during synchronization. Please contact the developer and attach the log.txt file to your report.",
 	"commit_fail": "Failed to upload changes. Please contact the developer.",
+	"get_not_allowed": "Server is under maintenance. Get operations are not allowed. Contact the developer.",
+	"post_not_allowed": "Server is under maintenance. Post operations are not allowed. Contact the developer.",
 
 	"folder_fail": "Failed to create the path %value%. Please contact the developer and attach the log.txt file to your report.",
 	"gamedata_exception": "An unknown error occurred while processing the gamedata folder. Please contact the developer and attach the log.txt file to your report.",

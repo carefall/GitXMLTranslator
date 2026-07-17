@@ -108,7 +108,7 @@
         <ListBox
             x:Name="FilesList"
             Grid.Row="2"
-            Margin="5"
+            Margin="5,0,5,5"
             ItemsSource="{Binding Files}"
             ScrollViewer.HorizontalScrollBarVisibility="Visible"
             ScrollViewer.VerticalScrollBarVisibility="Hidden"
@@ -118,7 +118,8 @@
                     <Grid>
                         <Grid.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Click="MenuItem_Click" Header="{Binding Source={StaticResource Locale}, Path=[open_file]}" />
+                                <MenuItem Click="MenuItem_Click_Text" Header="{Binding Source={StaticResource Locale}, Path=[open_file]}" />
+                                <MenuItem Click="MenuItem_Click_File" Header="{Binding Source={StaticResource Locale}, Path=[open_explorer]}" />
                             </ContextMenu>
                         </Grid.ContextMenu>
                         <Grid.ColumnDefinitions>

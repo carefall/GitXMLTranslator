@@ -102,6 +102,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <ToggleButton
@@ -136,7 +137,6 @@
                     Padding="20,0,5,0"
                     VerticalContentAlignment="Center"
                     TextChanged="SearchBox_TextChanged" />
-
                 <TextBlock
                     Margin="5,0,0,0"
                     HorizontalAlignment="Stretch"
@@ -144,7 +144,6 @@
                     Foreground="Gray"
                     IsHitTestVisible="False"
                     Text="🔍" />
-
                 <TextBlock
                     x:Name="SearchPlaceholder"
                     Margin="25,0,0,0"
@@ -168,6 +167,12 @@
                     </TextBlock.Style>
                 </TextBlock>
             </Grid>
+            <Button
+                Grid.Column="2"
+                MinWidth="175"
+                Margin="10,0,0,0"
+                Click="AdvSearch_Click"
+                Content="{Binding Source={StaticResource Locale}, Path=[btn_adv_search]}" />
         </Grid>
     </Grid>
 </UserControl>

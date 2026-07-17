@@ -133,5 +133,10 @@ namespace RestXMLTranslator.UserControls
         {
             App.Current.SwitchTheme();
         }
+
+        public void AdvSearch_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.MWindow.OpenAdvancedSearch();
+        }
     }
 }

@@ -1,0 +1,108 @@
+﻿<Window
+    x:Class="RestXMLTranslator.SearchWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:RestXMLTranslator"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="{Binding Source={StaticResource Locale}, Path=[btn_adv_search]}"
+    Width="800"
+    Height="600"
+    Background="{DynamicResource WindowBackgroundBrush}"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid
+                Grid.Column="0"
+                MinWidth="150"
+                Margin="0,0,10,0"
+                HorizontalAlignment="Stretch">
+                <TextBox
+                    x:Name="SearchBox"
+                    Padding="20,0,5,0"
+                    VerticalContentAlignment="Center"
+                    KeyDown="SearchBox_KeyDown" />
+                <TextBlock
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Foreground="Gray"
+                    IsHitTestVisible="False"
+                    Text="🔍" />
+                <TextBlock
+                    x:Name="SearchPlaceholder"
+                    Margin="25,0,0,0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Foreground="Gray"
+                    IsHitTestVisible="False"
+                    Text="{Binding Source={StaticResource Locale}, Path=[search_placeholder]}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=SearchBox}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+            <Button
+                x:Name="SearchButton"
+                Grid.Column="1"
+                Width="175"
+                Height="30"
+                HorizontalAlignment="Right"
+                Click="SearchButton_Click"
+                Content="{Binding Source={StaticResource Locale}, Path=[btn_search]}" />
+        </Grid>
+        <DataGrid
+            x:Name="ResultsGrid"
+            Grid.Row="2"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            CanUserDeleteRows="False"
+            CanUserResizeRows="False"
+            CanUserSortColumns="True"
+            IsReadOnly="True"
+            MouseDoubleClick="ResultsGrid_MouseDoubleClick"
+            SelectionMode="Single"
+            SelectionUnit="FullRow">
+
+            <DataGrid.Columns>
+
+                <DataGridTextColumn
+                    Width="180"
+                    Binding="{Binding FileName}"
+                    Header="{Binding Source={StaticResource Locale}, Path=[file_name]}" />
+
+                <DataGridTextColumn
+                    Width="220"
+                    Binding="{Binding Id}"
+                    Header="ID" />
+
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding Preview}"
+                    Header="{Binding Source={StaticResource Locale}, Path=[entry_match]}" />
+
+            </DataGrid.Columns>
+
+        </DataGrid>
+    </Grid>
+</Window>
