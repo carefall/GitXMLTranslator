@@ -100,7 +100,7 @@ namespace RestXMLTranslator.Internals.Services
             foreach (var file in files)
             {
                 var latest = file.HalfEntries.MaxBy(x => x.Uid);
-                file.Finished = latest!.Finished;
+                file.Finished = latest != null? latest.Finished : false;
             }
             return files;
         }
