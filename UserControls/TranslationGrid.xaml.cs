@@ -100,21 +100,17 @@ namespace RestXMLTranslator.UserControls
         {
             if (sender is not Button button)
                 return;
-
             if (button.DataContext is not StringEntry entry)
                 return;
-
             if (entry.IsApproved)
                 return;
-
             if (button.Tag is not string propertyName)
                 return;
-
             var property = typeof(StringEntry).GetProperty(propertyName);
             if (property == null || !property.CanWrite)
                 return;
-
-            var dlg = new TextEditWindow(property.GetValue(entry)?.ToString() ?? "")
+            var opposite = propertyName == "NewEng"? entry.NewRu : entry.NewEng;
+            var dlg = new TextEditWindow(property.GetValue(entry)?.ToString() ?? "", opposite)
             {
                 Owner = Window.GetWindow(this)
             };

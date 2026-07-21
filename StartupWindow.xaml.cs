@@ -33,7 +33,7 @@ namespace RestXMLTranslator
             var settings = App.Current.Settings;
             SyncText.Visibility = Visibility.Visible;
             Logger.Log("Performing update check...", "Startup");
-            SyncResult result = await App.Current.SyncService.StartupSync(settings.GameDataPath, settings.Version, _progress);
+            (SyncResult result, Dictionary<string, FileInfo>? files) = await App.Current.SyncService.StartupSync(settings.GameDataPath, settings.Version, _progress);
             if (result == SyncResult.ClientVersionHigher || result == SyncResult.Other)
             {
                 MessageBox.Show(Locale.Get("sync_error"), Locale.Get("sync"));
@@ -44,24 +44,24 @@ namespace RestXMLTranslator
             {
                 MessageBox.Show(Locale.Get("old_app_get"), Locale.Get("sync"));
                 Logger.Log("Update check failed due to unsupported app version. Moving to MainWindow", "Startup");
-                new MainWindow(false).Show();
+                new MainWindow(false, files).Show();
             }
             else if (result == SyncResult.ServerUnavailable)
             {
                 MessageBox.Show(Locale.Get("update_server_unreachable"), Locale.Get("sync"));
                 Logger.Log("Update check failed due to service unavailability. Moving to MainWindow", "Startup");
-                new MainWindow(false).Show();
+                new MainWindow(false, files).Show();
             }
             else if (result == SyncResult.Inactive)
             {
                 MessageBox.Show(Locale.Get("get_not_allowed"), Locale.Get("sync"));
                 Logger.Log("Server is under maintenance. Get operations are not available.", "Startup");
-                new MainWindow(false).Show();
+                new MainWindow(false, files).Show();
             }
             else
             {
                 Logger.Log("Successful update check. Moving to MainWindow", "Startup");
-                new MainWindow(true).Show();
+                new MainWindow(true, files).Show();
             }
             Close();
             return;

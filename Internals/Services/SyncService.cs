@@ -6,12 +6,12 @@ namespace RestXMLTranslator.Internals.Services
 {
     public class SyncService
     {
-        public async Task<(Dictionary<string, int>?, bool)> GetServerFiles()
+        public async Task<(Dictionary<string, FileInfo>?, bool)> GetServerFiles()
         {
             string json = await RestClient.GetDataAsync("files");
             if (string.IsNullOrEmpty(json)) return (null, true);
             if (json == "0") return (null, false);
-            return (JsonSerializer.Deserialize<Dictionary<string, int>>(json, App.Current.JsonOptions), true);
+            return (JsonSerializer.Deserialize<Dictionary<string, FileInfo>>(json, App.Current.JsonOptions), true);
         }
 
 
@@ -45,32 +45,32 @@ namespace RestXMLTranslator.Internals.Services
             }
         }
 
-        public async Task<SyncResult> EditorSync()
+        public async Task<(SyncResult, Dictionary<string, FileInfo>?)> EditorSync()
         {
             int version = App.Current.Settings.Version;
             (var files, bool allowed) = await GetServerFiles();
-            if (!allowed) return SyncResult.Inactive;
-            if (files == null) return SyncResult.ServerUnavailable;
+            if (!allowed) return (SyncResult.Inactive, null);
+            if (files == null) return (SyncResult.ServerUnavailable, null);
             App.Current.LocalFiles.DeleteRedundantFiles(files);
             App.Current.LocalFiles.DeleteChanges(files);
             var updates = await DownloadUpdates(version);
-            if (updates == null) return SyncResult.ServerUnavailable;
-            if (updates.Count == 0) return SyncResult.OldApp;
+            if (updates == null) return (SyncResult.ServerUnavailable, files);
+            if (updates.Count == 0) return (SyncResult.OldApp, files);
             SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
-            return result;
+            return (result, files);
         }
 
-        public async Task<SyncResult> StartupSync(string gameDataPath, int version, IProgress<string>? progress = null)
+        public async Task<(SyncResult, Dictionary<string, FileInfo>?)> StartupSync(string gameDataPath, int version, IProgress<string>? progress = null)
         {
             try
             {
                 progress?.Report(Locale.Get("getting_files"));
                 (var files, bool allowed) = await GetServerFiles();
-                if (!allowed) return SyncResult.Inactive;
-                if (files == null) return SyncResult.ServerUnavailable;
-                if (files.Count == 0) return SyncResult.Success;
-                int targetVersion = files.Values.Max();
-                if (targetVersion <= version) return SyncResult.Success;
+                if (!allowed) return (SyncResult.Inactive, null);
+                if (files == null) return (SyncResult.ServerUnavailable, null);
+                if (files.Count == 0) return (SyncResult.Success, null);
+                int targetVersion = files.Values.Max(f => f.Version);
+                if (targetVersion <= version) return (SyncResult.Success, files);
                 progress?.Report(Locale.Get("deleting_files"));
                 await Task.Run(() =>
                 {
@@ -79,17 +79,17 @@ namespace RestXMLTranslator.Internals.Services
                 });
                 progress?.Report(Locale.Get("downloading_updates"));
                 var updates = await DownloadUpdates(version);
-                if (updates == null) return SyncResult.ServerUnavailable;
-                if (updates.Count == 0) return SyncResult.OldApp;
+                if (updates == null) return (SyncResult.ServerUnavailable, files);
+                if (updates.Count == 0) return (SyncResult.OldApp, files);
                 progress?.Report(Locale.Get("applying_updates"));
                 SyncResult result = await App.Current.LocalFiles.ApplyUpdates(updates);
                 if (result == SyncResult.Success) App.Current.Settings.UpdateVersion(targetVersion);
-                return result;
+                return (result, files);
             }
             catch (Exception ex)
             {
                 Logger.Log($"Unhandled exception: {ex}", "SyncService");
-                return SyncResult.Other;
+                return (SyncResult.Other, null);
             }
         }
 

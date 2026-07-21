@@ -7,9 +7,13 @@ namespace RestXMLTranslator
 {
     public partial class MainWindow : Window
     {
-        public MainWindow(bool online)
+
+        private Dictionary<string, FileInfo>? files = null;
+
+        public MainWindow(bool online, Dictionary<string, FileInfo>? files)
         {
             InitializeComponent();
+            this.files = files;
             Title = Locale.Get("window_title", online ? Locale.Get("connected", GetCurrentTimeHM()) : Locale.Get("not_connected"));
         }
 
@@ -21,6 +25,15 @@ namespace RestXMLTranslator
             foreach (var file in await App.Current.LocalFiles.ReadLocalFiles())
             {
                 Files.Files.Add(file);
+            }
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+                    FileTab? ft = Files.Files.First(f => f.RelativePath == file.Key);
+                    if (ft == null) continue;
+                    ft.Finished = file.Value.Finished;
+                }
             }
             Files.FilesView?.Refresh();
             Files.FilesList.SelectedIndex = 0;
@@ -54,7 +67,17 @@ namespace RestXMLTranslator
                 return;
             }
             await Files.SaveAll(false);
-            SyncResult syncResult = await App.Current.SyncService.EditorSync();
+            (SyncResult syncResult, Dictionary<string, FileInfo>? fileResult) = await App.Current.SyncService.EditorSync();
+            if (fileResult != null) files = fileResult;
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+                    FileTab? ft = Files.Files.First(f => f.RelativePath == file.Key);
+                    if (ft == null) continue;
+                    ft.Finished = file.Value.Finished;
+                }
+            }
             if (syncResult == SyncResult.Inactive)
             {
                 WindowBlocker.Visibility = Visibility.Hidden;
@@ -140,6 +163,11 @@ namespace RestXMLTranslator
             WindowBlocker.Visibility = Visibility.Hidden;
             MessageBox.Show(Locale.Get("synced"), Locale.Get("sync"));
             Title = Locale.Get("window_title", Locale.Get("connected", GetCurrentTimeHM()));
+            if (files != null)
+            {
+                KeyValuePair<string, FileInfo>? info = files.First(f => f.Key == tab.RelativePath);
+                info?.Value.Finished = false;
+            }
             await Reload();
         }
 
@@ -164,6 +192,15 @@ namespace RestXMLTranslator
                 {
                     file.SelectedEntry = entryId;
                     snapTo = file;
+                }
+            }
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+                    FileTab? ft = Files.Files.First(f => f.RelativePath == file.Key);
+                    if (ft == null) continue;
+                    ft.Finished = file.Value.Finished;
                 }
             }
             Files.FilesView?.Refresh();
@@ -218,13 +255,7 @@ namespace RestXMLTranslator
             }
         }
 
-        public void OpenAdvancedSearch()
-        {
-            new SearchWindow()
-            {
-                Owner = this
-            }.Show();
-        }
+        public void OpenAdvancedSearch() => new SearchWindow() { Owner = this }.Show();
 
         public void NavigateTo(FileTab file, string entry)
         {

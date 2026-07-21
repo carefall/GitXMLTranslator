@@ -12,7 +12,7 @@ namespace RestXMLTranslator.Internals.Services
 {
     public class LocalFileService
     {
-        public void DeleteRedundantFiles(Dictionary<string, int> files)
+        public void DeleteRedundantFiles(Dictionary<string, Models.FileInfo> files)
         {
             string path = Path.Combine(App.Current.Settings.GameDataPath, "gamedata", "configs", "text"); // change path later when smth happens
             if (!Directory.Exists(path)) return;
@@ -35,7 +35,7 @@ namespace RestXMLTranslator.Internals.Services
             }
         }
 
-        public void DeleteChanges(Dictionary<string, int> files)
+        public void DeleteChanges(Dictionary<string, Models.FileInfo> files)
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Changes");
             if (!Directory.Exists(path)) return;

@@ -8,12 +8,13 @@ namespace RestXMLTranslator
     {
         public string ResultText => Editor.Text;
 
-        public TextEditWindow(string text)
+        public TextEditWindow(string text, string opposite)
         {
             InitializeComponent();
             Editor.Text = text;
             Title = Locale.Get("enter_text");
             Cancel.Content = Locale.Get("btn_cancel");
+            Opposite.Text = opposite;
         }
 
         private void Ok_Click(object sender, RoutedEventArgs e)
